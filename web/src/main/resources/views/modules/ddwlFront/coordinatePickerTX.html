@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>地图</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+	<!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+	<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script type="text/javascript" src="http://res.layui.com/layui/dist/layui.js"></script>
+   	<script type="text/javascript" src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+	<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+
+	<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+	<style type="text/css">
+		.all-container{
+			margin: 0 auto;
+			width:584px;
+			height:440px;
+		}
+		#container{
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+	<script charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key=YGEBZ-P47C4-I5AUL-XJZ3T-7UKG6-WCBBY""></script>
+
+	<script>
+
+		window.onload = function(){
+
+		    //初始化地图函数
+		    function init() {
+		    	// 地图的中心地理坐标
+		    	var center = new qq.maps.LatLng(39.914850, 116.403765);
+
+			    //定义map变量 调用 qq.maps.Map() 构造函数   获取地图显示容器
+				var map = new qq.maps.Map(
+				    document.getElementById("container"),
+				    {
+				        center: center,		
+				        zoom: 13			// 地图的缩放级别。
+				    }
+				);
+
+				//获取城市列表接口设置中心点
+			    citylocation = new qq.maps.CityService({
+			        complete : function(result){
+			            map.setCenter(result.detail.latLng);
+			        }
+			    });
+			    //调用searchLocalCity();方法    根据用户IP查询城市信息。
+			    citylocation.searchLocalCity();
+
+		        // 监听地图点击事件
+		        qq.maps.event.addListener(map,'click',function(event) {
+		        	var position = new qq.maps.LatLng(event.latLng.getLat(), event.latLng.getLng());
+
+		        	createMarker(position, map);
+
+		        	geocoder = new qq.maps.Geocoder({
+				        complete : function(result){
+				            map.setCenter(result.detail.location);
+				            console.log(result);
+				            $("#address").val(result.detail.address);
+				        }
+				    });
+				    geocoder.getAddress(position);
+
+		        	$("#lat").val(event.latLng.getLat());
+		        	$("#lng").val(event.latLng.getLng());
+				});
+		    }
+
+		    //调用初始化函数地图
+		    init();
+
+
+		    
+
+
+		    var markersArray = [];
+
+		    /*添加覆盖物*/
+		    function createMarker(position, map) {
+		    	deleteOverlays();
+		    	var marker = new qq.maps.Marker({
+				    position: position,
+				    map: map
+				});
+				markersArray.push(marker);
+		    }
+
+		    /*删除覆盖物*/
+			function deleteOverlays() {
+			    if (markersArray) {
+			        for (i in markersArray) {
+			            markersArray[i].setMap(null);
+			        }
+			        markersArray.length = 0;
+			    }
+			}
+
+		    /*添加比例尺控件 左下角*/
+		    function scaleControl(map) {
+		        var scaleControl = new qq.maps.ScaleControl({
+				    align: qq.maps.ALIGN.BOTTOM_LEFT,
+				    margin: qq.maps.Size(85, 15),
+				    map: map
+				});
+		    }
+
+		}
+	</script>
+</head>
+	<body>
+		<div class="all-container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="input-group">
+						<span class="input-group-addon">当前地址：</span>
+						<input id="address" type="text" class="form-control" value="">
+						
+					</div>
+				</div>
+			</div>
+
+			<!--   定义地图显示容器   -->
+			<div id="container"></div>
+			
+			<div class="row">
+				<div class="col-md-12">
+					<div class="input-group">
+						<span class="input-group-addon">当前坐标：</span>
+						      <input type="text" readonly="true" class="form-control" id="lat">
+    						  <input type="text" readonly="true" class="form-control" id="lng">
+					</div>
+				</div>
+			</div>
+			<button type="button" id="closeIframe" class="btn btn-primary btn-lg btn-block">确定</button>
+		</div>
+	</body>
+<script>
+//注意：parent 是 JS 自带的全局对象，可用于操作父页面
+var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+
+
+
+//关闭iframe
+$('#closeIframe').click(function(){
+    var val = $('#lng').val();
+    var val2 = $("#lat").val();
+    if(val === ''){
+        parent.layer.msg('请填写标记');
+        return;
+    }
+    parent.$('#longitudeX').val(val);
+    parent.$('#latitudeY').val(val2);
+    parent.layer.close(parent.layer.index);
+
+});
+
+
+</script>
+</html>

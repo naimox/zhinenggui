@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.ddwl.dao.DdwlCardRecordDao">
+	<!-- 查询数据-->
+	<select id="findList" resultType="DdwlCardRecord">
+		SELECT * FROM (
+		SELECT
+		cr.id,
+		c.card_num card_id,
+-- 		c.card_num card_id,
+		u.name user_id,
+		cr.device_id device_id,
+		ca.total_door_id door_id,
+		cr.create_date create_date,
+		cr.state state,
+		cr.status
+		FROM ddwl_card_record cr
+		LEFT JOIN ddwl_card c on c.card_id = cr.card_id
+		LEFT JOIN ddwl_user u on u.id = cr.user_id
+		LEFT JOIN ddwl_cabinets ca on ca.id = cr.door_id
+		) a
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select>
+	
+</mapper>

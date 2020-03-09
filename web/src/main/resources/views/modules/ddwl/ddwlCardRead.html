@@ -1,0 +1,92 @@
+<% layout('/layouts/default.html', {title: 'ic卡表管理', libs: ['validate']}){ %>
+<div class="main-content" onload="HtmlEditor.focus()">
+	<div class="box box-main">
+		<div class="box-header with-border">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text('刷卡识别')}
+			</div>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+			</div>
+		</div>
+		<input id="initInput">
+		<#form:form id="inputForm" model="${zhinengguiCard}" action="${ctx}/zhinenggui/zhinengguiCard/readCard" method="post" class="form-horizontal" >
+			<div class="box-body">
+				<div class="form-unit" align="center"><h1 id="hTitle" style="width: 200px">${text('请刷卡')}</h1><button style="width: 200px" type="button" class="btn btn-sm btn-default" id="btnCancel" onclick="js.closeCurrentTabPage()"><i class="fa fa-reply-all"></i> ${text('关 闭')}</button></div>
+				<div class="row">
+					<div class="row" style="visibility: hidden;">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-sm-2" title="">
+									<span class="required hide">*</span> ${text('卡号')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-5">
+									<#form:input path="cardId" maxlength="255" class="form-control"/>
+								</div>
+							</div>
+						</div>
+					</div>
+			</div>
+			<div class="box-footer">
+				<div class="row">
+					<div class="col-sm-offset-2 col-sm-10">
+						<button style="visibility: hidden;"  type="submit" class="btn btn-sm btn-primary" id="btnSubmit" ><i class="fa fa-check"></i> ${text('保 存')}</button>&nbsp;
+					</div>
+				</div>
+			</div>
+		</#form:form>
+	</div>
+</div>
+<% } %>
+<script>
+    $(document).ready(function(){
+        $("#initInput").focus();
+        $("#initInput").hide()
+        // $("#hTitle").show();
+        // $("#hTitle").focus()
+        // // $("#cardId").click()
+        // $("#hTitle").focus(function(){
+			// alert("hTitle")
+			// 	// .css("background-color","#FFFFCC");
+        // });
+    })
+	var cardId = ""
+    document.onkeydown=function(event){
+        // var e = event || window.event || arguments.callee.caller.arguments[0];
+		if (event.keyCode == 13){
+            $("#cardId").val(cardId+"\n")
+            btnSubmit.click()
+            cardId=""
+		} else {
+            cardId+=event.keyCode-48
+		}
+		// $("#cardId").val(event.keyCode)
+        // if(e && e.keyCode==27){ // 按 Esc
+        //     //要做的事情
+        // }
+        // if(e && e.keyCode==113){ // 按 F2
+        //     //要做的事情
+        // }
+        // if(e && e.keyCode==13){ // enter 键
+        //     //要做的事情
+        // }
+    };
+    $("#inputForm").validate({
+	submitHandler: function(form){
+		js.ajaxSubmitForm($(form), function(data){
+			if(data.result == Global.TRUE){
+
+			    if (data.message == "ic卡未注册！") {
+                    js.showMessage(data.message);
+                    // js.closeCurrentTabPage(function (contentWindow) {
+                    //     contentWindow.page();
+                    // });
+                }else {
+                    window.location.href= "${ctx}/zhinenggui/zhinengguiCard/form?id="+data.message
+				}
+			}else {
+                js.showMessage(data.message);
+			}
+		}, "json");
+    }
+});
+</script>

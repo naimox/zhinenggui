@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>智能柜快递柜</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<script src="../../../static/common/default/jquery-1.8.0.min.js" type="text/javascript"></script>
+		<script src="../../../static/common/default/pageSwitch.min.js"></script>
+		<link rel="stylesheet" href="../../../static/common/default/buyProduct.css">
+	</head>
+	<body>
+		<form method="post" id="form">
+			<div class="window">
+					<div id="container">
+                    <div class="title"><img src="../../../static/common/default/lan.jpg"></div>
+						<div class="sections">
+                            <div class="section" id="section0"><img alt="" src="ps1.png"></div>
+							<div class="clearfix"></div>
+						</div>
+					</div>
+
+                 <div class="bd">
+                 <div class="exer">
+                 <table>
+                 <tr>
+                 <td>柜门</td>
+                 <td>联系人</td>
+                 <td>寄件时间</td>
+                 <td>状态</td>
+                 </tr>
+					 <% for(m in data){  %>
+					 <tr>
+						 <td>${m.deviceRemark}设备中${m.totalDoorId}门</td>
+						 <td>${m.getterPhone}</td>
+						 <td>${m.courierSendTime}</td>
+						 <td>${m.state}</td>
+					 </tr>
+					 <% } %>
+
+
+                 </table>
+                 </div>
+                </div>
+  					</div>
+				</div>
+			</div>
+			<div class="bottom">
+				<div class="left">
+				<img src="../../../static/common/default/dilan.png"/>
+				</div></div>
+		</form>
+	</body>
+	<script type="text/javascript">
+	</script>
+</html>

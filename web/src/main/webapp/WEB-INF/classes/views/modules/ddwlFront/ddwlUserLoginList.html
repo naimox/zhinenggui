@@ -1,0 +1,24 @@
+<% layout('/layouts/default.html', {title: '用户表管理', libs: ['dataGrid']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text('用户表管理')}
+			</div>
+			<div class="box-tools pull-right">
+				<a href="${ctx}/ddwl/ddwlUserAddress/list" class="btn btn-default"  title="${text('地址管理')}"><i class="fa fa-filter"></i> ${text('地址管理')}</a>
+				<a href="${ctx}/ddwl/ddwlUser/form" class="btn btn-default btnTool" title="${text('钱包信息')}"><i class="fa fa-filter"></i> ${text('钱包信息')}</a>
+				<a href="${ctx}/ddwl/ddwlOrder/list" class="btn btn-default btnTool" title="${text('订单管理')}"><i class="fa fa-filter"></i> ${text('订单管理')}</a>
+				<a href="${ctx}/ddwl/ddwlUser/form" class="btn btn-default btnTool" title="${text('个人信息')}"><i class="fa fa-filter"></i> ${text('个人信息')}</a>
+				<a href="${ctx}/ddwl/ddwlOrder/form?deviceId=123" class="btn btn-default btnTool" title="${text('用户寄件')}"><i class="fa fa-filter"></i> ${text('用户寄件')}</a>
+			</div>
+		</div>
+		<div>
+			<span>${ddwlUser}</span>
+		</div>
+	</div>
+</div>
+<% } %>
+<script>
+// 初始化DataGrid对象
+</script>

@@ -1,0 +1,55 @@
+<% layout('/layouts/default.html', {title: '跳转订单', libs: ['validate']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header with-border">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text(ddwlOrder.isNewRecord ? 'tttttt' : 'gggggg')}
+			</div>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+			</div>
+		</div>
+		<#form:form id="inputForm" model="${ddwlOrder}" action="${ctx}/ddwl/ddwlOrder/sendOrder" method="post" class="form-horizontal">
+			<input type="hidden" name="deviceId" value="${deviceId}"/>
+			<div class="box-body">
+				<div class="form-unit">${text('基本信息')}</div>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="剩余柜门">
+								<span class="required ">*小柜：</span> ${doorSizeCount.sCount}<i class="fa icon-question hide"></i></label>
+							<label class="control-label col-sm-4" title="剩余柜门">
+								<span class="required ">*中柜：</span> ${doorSizeCount.mCount}<i class="fa icon-question hide"></i></label>
+							<label class="control-label col-sm-4" title="剩余柜门">
+								<span class="required ">*大柜：</span> ${doorSizeCount.lCount}<i class="fa icon-question hide"></i></label>
+							<label class="control-label col-sm-4" title="剩余柜门">
+								<span class="required ">*超大柜：</span> ${doorSizeCount.xlCount}<i class="fa icon-question hide"></i></label>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required ">*</span> ${text('expressNumber')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="expressNumber" maxlength="255" class="form-control required"/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="box-footer">
+				<div class="row">
+					<div class="col-sm-offset-2 col-sm-10">
+						<% if (hasPermi('ddwl:ddwlOrder:edit')){ %>
+						<% } %>
+						<button type="submit" class="btn btn-sm btn-primary" id="btnSubmit"><i class="fa fa-check"></i> ${text('保 存1')}</button>&nbsp;
+						<button type="button" class="btn btn-sm btn-default" id="btnCancel" onclick="js.closeCurrentTabPage()"><i class="fa fa-reply-all"></i> ${text('关 闭')}</button>
+					</div>
+				</div>
+			</div>
+		</#form:form>
+	</div>
+</div>
+<% } %>

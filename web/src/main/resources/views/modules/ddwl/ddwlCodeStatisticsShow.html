@@ -1,0 +1,135 @@
+<% layout('/layouts/default.html', {title: '验证码管理', libs: ['dataGrid']}){ %>
+<div class="main-content">
+    <div class="box box-main">
+        <div class="box-header">
+            <div class="box-title">
+                <i class="fa fa-list-alt"></i> ${text('验证码管理')}
+            </div>
+            <div class="box-tools pull-right">
+                <a href="#" class="btn btn-default" id="btnSearch" title="${text('查询')}"><i class="fa fa-filter"></i> ${text('查询')}</a>
+            </div>
+        </div>
+        <div class="box-body">
+        <#form:form id="searchForm" model="${zhinengguiCode}" action="${ctx}/zhinenggui/zhinengguiCodeStatistics/codeList" method="post" class="form-inline hide"
+            data-page-no="${parameter.pageNo}" data-page-size="${parameter.pageSize}" data-order-by="${parameter.orderBy}">
+            <div class="form-group">
+                <label class="control-label">${text('验证码类型/区分验证码用途')}：</label>
+                <div class="control-inline width-120">
+                    <#form:select path="type" dictType="code_type" blankOption="true" class="form-control"/>
+                    <!--<#form:input path="type" maxlength="6" class="form-control width-120"/>-->
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label">${text('手机号')}：</label>
+                <div class="control-inline">
+                    <#form:input path="phone" maxlength="255" class="form-control width-120"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-sm">${text('查询')}</button>
+                <button type="reset" class="btn btn-default btn-sm">${text('重置')}</button>
+            </div>
+        </#form:form>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <span class="info-box-text">短信剩余条数</span>
+            <div class="info-box">
+                <span class="info-box-icon bg-aqua"><i class="fa icon-bubbles"></i></span>
+                <div class="info-box-content">
+
+                    <span class="info-box-number">${codeNum}<small>条</small></span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+            <% if (hasPermi('zhinenggui:zhinengguiDetail:edit')){ %>
+            <!--<button id="rechargeBtn" class="btn btn-default width-120" title="${text('充值')}">${text('充值')}</button>-->
+            <a href="${ctx}/zhinenggui/zhinengguiCodeStatistics/rechargeView" class="btn btn-default width-120 btnTool" title="${text('充值')}">${text('充值')}</a>
+            <!--<button id="bindOpenId" href="${ctx}/zhinenggui/zhinengguiWallet/bindOpenId" class="btn btn-default width-120" title="${text('绑定微信')}">${text('绑定微信')}</button>-->
+            <% } %>
+        </div>
+        <table id="dataGrid"></table>
+        <div id="dataGridPage"></div>
+    </div>
+</div>
+</div>
+<% } %>
+<script>
+
+    /**
+     * AJAX 提交
+     * js.ajaxSubmit('/sys/user/save', {param: 1}, function(data){})
+     */
+    $("#rechargeBtn").click(function(){
+        js.ajaxSubmit('${ctx}/zhinenggui/zhinengguiCodeStatistics/recharge', {}, function (data) {
+            if (data['code'] != '200'){
+                alert(data['msg'])
+                return
+            }
+            if (data['imgUrl'] != null && data['imgUrl'] != '') {
+                // window.open(data['imgUrl'])
+                // window.location.href = data['imgUrl'];
+                var img = "<img height='300px' width='300px'  src='"+data['imgUrl']+"'>"
+                layer.open({
+                    type: 1,//Page层类型
+                    // area: ['500px', '500px'],
+                    title: '充值'+data['rechargeNum']+'条短信',
+                    shade: 0.6 ,//遮罩透明度
+                    maxmin: true ,//允许全屏最小化
+                    anim: 1 ,//0-6的动画形式，-1不开启
+                    content: img
+                });
+                // alert(data['imgUrl'])
+            }else{
+                alert("充值获取失败")
+            }
+        },'json');
+    });
+
+    // $("#bindOpenId").click( function() {
+    //     js.ajaxSubmit('${ctx}/zhinenggui/zhinengguiWallet/bindOpenId', {}, function(data){
+    //         if (data['imgUrl'] != null && data['imgUrl'] != '') {
+    //             // window.open(data['imgUrl'])
+    //             // window.location.href = data['imgUrl'];
+    //             var img = "<img height='300px' width='300px'  src='"+data['imgUrl']+"'>"
+    //             layer.open({
+    //                 type: 1,//Page层类型
+    //                 // area: ['500px', '500px'],
+    //                 title: '绑定微信',
+    //                 shade: 0.6 ,//遮罩透明度
+    //                 maxmin: true ,//允许全屏最小化
+    //                 anim: 1 ,//0-6的动画形式，-1不开启
+    //                 content: img
+    //             });
+    //             // alert(data['imgUrl'])
+    //         }else{
+    //             alert("绑定获取失败")
+    //         }
+    //     },'json');
+    //
+    // });
+    $('#dataGrid').dataGrid({
+        searchForm: $("#searchForm"),
+        columnModel: [
+            {header:'${text('验证码')}', name:'code', index:'a.code', width:150, align:"left"},
+            // {header:'${text('用户ID')}', name:'userId', index:'a.user_id', width:150, align:"left"},
+            {header:'${text('验证码类型区分验证码用途')}', name:'type', index:'a.type', width:150, align:"center", formatter: function(val, obj, row, act){
+                return js.getDictLabel(${@DictUtils.getDictListJson('code_type')}, val, '${text('未知')}', true);
+            }},
+            {header: '${text('手机号')}', name:'phone', index:'a.phone', width:150, align:"left"},
+            {header: '${text('创建时间')}', name:'createDate', index:'a.create_date', width:150, align:"center"},
+            {header: '${text('备注')}', name:'remarks', index:'a.remarks', width:150, align:"left"},
+            {header: '${text('状态')}', name:'status', index:'a.status', width:150, align:"center", formatter: function(val, obj, row, act){
+                // return js.getDictLabel(${@DictUtils.getDictListJson('sys_status')}, val, '${text('未知')}', true);
+                if(val>0){
+                    return '已使用';
+                }else {
+                    return '未使用';
+                }
+            }}
+    ],
+    // 加载成功后执行事件
+    ajaxSuccess: function(data){
+
+    }
+    });
+</script>

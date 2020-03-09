@@ -1,0 +1,80 @@
+<% layout('/layouts/default.html', {title: '订单表管理', libs: ['dataGrid']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text('订单表管理')}
+			</div>
+			<div class="box-tools pull-right">
+				<a href="#" class="btn btn-default" id="btnSearch" title="${text('查询')}"><i class="fa fa-filter"></i> ${text('查询')}</a>
+				<a href="${ctx}/ddwl/ddwlOrder/form" class="btn btn-default btnTool" title="${text('新增订单表')}"><i class="fa fa-plus"></i> ${text('新增')}</a>
+				<a href="javascript:history.go(-1)" target="_self" class="btn btn-default btnTool" title="${text('用户管理表')}"><i class="fa fa-reply-all"></i> ${text('返回主菜单')}</a>
+			</div>
+		</div>
+		<div class="box-body">
+			<#form:form id="searchForm" model="${ddwlOrder}" action="${ctx}/ddwl/ddwlOrder/listData" method="post" class="form-inline hide"
+					data-page-no="${parameter.pageNo}" data-page-size="${parameter.pageSize}" data-order-by="${parameter.orderBy}">
+				<div class="form-group">
+					<label class="control-label">${text('快递单号')}：</label>
+					<div class="control-inline">
+						<#form:input path="expressNumber" maxlength="255" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('备注')}：</label>
+					<div class="control-inline">
+						<#form:input path="remarks" maxlength="255" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('状态/删除标记')}：</label>
+					<div class="control-inline width-120">
+						<#form:select path="status" dictType="sys_status" blankOption="true" class="form-control"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-sm">${text('查询')}</button>
+					<button type="reset" class="btn btn-default btn-sm">${text('重置')}</button>
+				</div>
+			</#form:form>
+			<table id="dataGrid"></table>
+			<div id="dataGridPage"></div>
+		</div>
+	</div>
+</div>
+<% } %>
+<script>
+// 初始化DataGrid对象
+$('#dataGrid').dataGrid({
+	searchForm: $("#searchForm"),
+	columnModel: [
+		{header:'${text('发件人姓名')}', name:'senderUserName', index:'a.sender_user_name', width:180,height:100, align:"left"},
+		{header:'${text('发件地址')}', name:'senderAddress', index:'a.sender_address', width:150,height:100, align:"left"},
+		{header:'${text('发件备注')}', name:'senderRemark', index:'a.sender_remark', width:150, height:100,align:"left"},
+		{header:'${text('订单状态')}', name:'state', index:'a.state', width:150, height:90,align:"left"},
+		{header:'${text('收货人姓名')}', name:'getterUserName', index:'a.getter_user_name', width:180, height:100,align:"left"},
+		{header:'${text('收货地址')}', name:'getterAddress', index:'a.getter_address', width:150,height:100, align:"left"},
+		{header:'${text('收货备注')}', name:'getterComment', index:'a.getter_comment', width:150, height:100,align:"left"},
+ 		{header:'${text('快递收件员姓名')}', name:'courierGetName', index:'a.courier_get_name', width:180, height:100,align:"left"},
+		{header:'${text('快递员收件时间')}', name:'courierGetTime', index:'a.courier_get_time', width:180, height:91000,align:"left"},
+		{header:'${text('快递送件员姓名')}', name:'courierSendName', index:'a.courier_send_name', width:180, height:100,align:"left"},
+		{header:'${text('快递送件时间')}', name:'courierSendTime', index:'a.courier_send_time', width:180, height:100,align:"left"},
+		{header:'${text('寄件总金额')}', name:'getTotalMoney', index:'a.get_total_money', width:150, height:100,align:"left"},
+		{header:'${text('收件总金额')}', name:'sendTotalMoney', index:'a.send_total_money', width:150,height:100, align:"left"},
+		{header:'${text('快递单号')}', name:'expressNumber', index:'a.express_number', width:150,height:100, align:"left"},
+		{header:'${text('快递公司')}', name:'expressCompany', index:'a.express_company', width:150, height:100,align:"left"},
+		{header:'${text('支付类型')}', name:'paymentTpye', index:'a.payment_tpye', width:150, height:100,align:"left"},
+		{header:'${text('创建时间')}', name:'createDate', index:'a.create_date', width:150,height:100, align:"center"},
+		{header:'${text('备注')}', name:'remarks', index:'a.remarks', width:150, height:100,align:"left"},
+		{header:'${text('操作')}', name:'actions', width:120, sortable:false, title:false, formatter: function(val, obj, row, act){
+			var actions = [];
+				actions.push('<a href="${ctx}/ddwl/ddwlOrder/delete?id='+row.id+'" class="btnList" title="${text('删除订单表')}" data-confirm="${text('确认要删除该订单表吗？')}"><i class="fa fa-trash-o"></i></a>&nbsp;');
+			return actions.join('');
+		}}
+	],
+	// 加载成功后执行事件
+	ajaxSuccess: function(data){
+		
+	}
+});
+</script>

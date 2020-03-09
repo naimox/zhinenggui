@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.ddwl.dao.DdwlCodeStatisticsDao">
+	
+	<!-- 查询数据-->
+	<select id="findList" resultType="DdwlCodeStatistics">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<!--<where>-->
+			<!--(code_num !=0 or ${sqlMap.where.toSql()})-->
+		<!--</where>-->
+		WHERE status = 0
+		<if test="userBy != null and userBy !=''">
+			and user_by = #{userBy}
+		</if>
+		<if test="createDate_gte != null and createDate_lte != null">
+			AND update_date between #{createDate_gte} and #{createDate_lte}
+		</if>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select>
+
+	<select id="getCodeStatisticsByDeviceId" resultType="DdwlCodeStatistics">
+		SELECT s.* FROM ddwl_code_statistics as s
+		LEFT JOIN ddwl_device as d ON s.user_by = d.by_user
+		WHERE d.device_id = #{deviceId}
+		LIMIT 1
+	</select>
+
+	<select id="getCodeStatisticsByUserId" resultType="DdwlCodeStatistics">
+		SELECT * FROM ddwl_code_statistics
+		WHERE user_by = #{userId}
+		LIMIT 1
+	</select>
+
+	<update id="reduceCodeNum">
+		UPDATE ddwl_code_statistics  SET code_num = code_num - #{num}
+		WHERE id = #{id}
+	</update>
+</mapper>

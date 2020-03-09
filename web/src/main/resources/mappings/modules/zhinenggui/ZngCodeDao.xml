@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.zhinenggui.dao.ZngCodeDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="ZngCode">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+
+	<select id="findByUserId" resultType="ZngCode">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		WHERE user_id = #{userId}
+		<if test="type != null and type != ''">
+			and `type` = #{type}
+		</if>
+		<if test="phone != null and phone != ''">
+			and phone = #{phone}
+		</if>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select>
+
+	<select id="getInfo" resultType="ZngCode">
+		SELECT *
+		FROM zhinenggui_code
+		WHERE phone = #{phone} and  type = #{type} and status = '0' LIMIT 1
+	</select>
+
+	<select id="getByPhoneAndCode" resultType="ZngCode">
+		SELECT *
+		FROM zhinenggui_code
+		WHERE status = '0'
+		<if test="phone != null and phone != ''">
+			AND phone = #{phone}
+		</if>
+		<if test="type != null and type != ''">
+			AND `type` = ${type}
+		</if>
+		<if test="code != null and code != ''">
+			AND code = ${code}
+		</if>
+		LIMIT 1
+	</select>
+
+	<select id="getCodeListByPhoneAndType" resultType="ZngCode">
+		SELECT *
+		FROM zhinenggui_code
+		WHERE phone = #{phone} and status = '0' and `type` = #{type}
+	</select>
+
+	<select id="getValidCodeList" resultType="ZngCode">
+		SELECT zhinenggui_code.*
+		FROM zhinenggui_code
+		<if test="orderId != null">
+			LEFT JOIN zhinenggui_order  ON zhinenggui_code.id = zhinenggui_order.code_id
+		</if>
+		WHERE zhinenggui_code.phone = #{phone} and zhinenggui_code.status = '0'
+		<if test="orderId != null">
+			and zhinenggui_order.id = #{orderId}
+		</if>
+	</select>
+
+	<select id="getLostValidCode" resultType="com.jeesite.modules.zhinenggui.search.LostValidCode">
+		SELECT zhinenggui_code.id id, zhinenggui_cabinets.door_id door_id, zhinenggui_cabinets.plate_id plate_id
+		FROM zhinenggui_code
+		LEFT JOIN zhinenggui_order ON zhinenggui_code.id = zhinenggui_order.code_id
+		LEFT JOIN zhinenggui_cabinets ON zhinenggui_cabinets.id = zhinenggui_order.send_door_id
+		WHERE zhinenggui_cabinets.state = '1'
+		and zhinenggui_code.code = #{getCode}
+		and LOCATE(zhinenggui_code.status,'1,4,5') >0
+		and zhinenggui_cabinets.device_id = #{deviceId}
+	</select>
+
+	<update id="addStatusById">
+		UPDATE zhinenggui_code SET status = CASE WHEN status = 1 THEN 4 WHEN status >= 4
+		AND status &lt; 6 THEN
+		status + 1 ELSE status 
+		END 
+		WHERE
+		id = #{id}
+	</update>
+
+	<update id="updateCodeByPhoneAndType">
+		UPDATE zhinenggui_code
+		SET status = '1', update_date = NOW()
+		WHERE phone = #{phone} and status > 0 and `type` = #{type}
+	</update>
+
+	<update id="updateStatusById">
+		UPDATE zhinenggui_code
+		SET status = '1'
+		WHERE id = #{id} AND status ='0'
+	</update>
+	
+	<update id="updateStatusByTelAndCode">
+		UPDATE zhinenggui_code
+		SET status = '1'
+		WHERE phone = #{tel} and status = '0' and `code` = #{code}
+	</update>
+	
+	<update id="updateOrderCode6">
+	update zhinenggui_code c
+	left join (select code_id from zhinenggui_order where send_door_id = #{codeId} and state ='600') o on c.id = o.code_id
+	set status = '6' where o.code_id is not null
+	</update>
+</mapper>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.ddwl.dao.DdwlCabinetsDao">
+	
+	<!-- 查询数据 -->
+	<select id="findList" resultType="DdwlCabinets">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY total_door_id
+	</select>
+	
+
+
+	<select id="getAllListByDeviceId" resultType="DdwlCabinets" parameterType="java.lang.String">
+		SELECT *
+		FROM ddwl_cabinets
+		WHERE device_id = #{deviceId} AND status = 0 ORDER BY total_door_id ASC
+	</select>
+
+	<select id="getListByDeviceId" resultType="DdwlCabinets" parameterType="java.lang.String">
+		SELECT *
+		FROM ddwl_cabinets
+		WHERE device_id = #{deviceId} AND status = 0 and state = '1' ORDER BY total_door_id ASC
+	</select>
+
+	<select id="getOneByDeviceId" resultType="DdwlCabinets">
+		SELECT a.* FROM (
+		SELECT c.*, IFNULL(p.`money`, 0) money, IFNULL(p.`courier_send_money`, 0) courier_send_money
+		FROM ddwl_cabinets c LEFT JOIN ddwl_door_price p ON c.id = p.door_id
+		WHERE c.state = 1 AND c.device_id = #{deviceId} AND c.door_size = #{doorSize}
+		AND c.status = 0 ) a WHERE a.money = #{money} <if test="sendDoorMoney !=null">AND a.courier_send_money = #{sendDoorMoney}</if>
+		LIMIT 1
+	</select>
+	<select id="getOneByDeviceId2" resultType="DdwlCabinets">
+		SELECT a.* FROM (
+		SELECT c.*, IFNULL(p.`money`, 0) money, IFNULL(p.`courier_send_money`, 0) courier_send_money
+		FROM ddwl_cabinets c LEFT JOIN ddwl_door_price p ON c.id = p.door_id
+		WHERE c.state = 1 AND c.device_id = #{deviceId} AND c.door_size = #{doorSize}
+		AND c.status = 0 ) a
+
+		<if test="money != null">
+			WHERE a.money = #{money}
+		</if>
+		LIMIT 1
+	</select>
+
+	<select id="getCount" resultType="com.jeesite.modules.ddwl.search.DoorSizeCount" parameterType="java.lang.String">
+		SELECT * FROM (
+			SELECT
+			  COUNT(1) c,
+			  c.door_size `size`,
+			  IFNULL(p.money, '0') money,
+			  IFNULL(p.`courier_send_money`, '0') sendDoorMoney
+			FROM
+			  ddwl_cabinets c
+			  LEFT JOIN ddwl_door_price p
+				ON c.id = p.door_id
+			WHERE c.state = 1 AND c.status = 0
+			  AND c.device_id = #{deviceId}
+			GROUP BY c.door_size,
+			  money ,courier_send_money) c
+		  GROUP BY c.c,c.size,c.money,sendDoorMoney
+	</select>
+	<select id="getCount1" resultType="com.jeesite.modules.ddwl.search.DoorSizeCount" parameterType="java.lang.String">
+		SELECT * FROM (
+		SELECT
+		COUNT(1) c,
+		c.door_size `size`,
+		IFNULL(p.money1, '0') money
+		FROM
+		ddwl_cabinets c
+		LEFT JOIN ddwl_door_price p
+		ON c.id = p.door_id
+		WHERE c.state = 1 AND c.status = 0
+		AND c.device_id = #{deviceId}
+		GROUP BY c.door_size,
+		money ) c
+		GROUP BY c.c,c.size,c.money
+	</select>
+
+	<select id="getPlateNum" resultType="DdwlCabinets" parameterType="java.lang.String">
+		SELECT DISTINCT plate_id FROM ddwl_cabinets WHERE status = 0 AND device_id = #{deviceId}
+	</select>
+
+	<select id="getOneByTotalDoorId" resultType="DdwlCabinets">
+		SELECT *
+		FROM ddwl_cabinets
+		WHERE device_id = #{deviceId} AND total_door_id = #{doorId} AND status = 0
+		LIMIT 1
+	</select>
+
+	<select id="getOneByTotalDoorIdNoStatus" resultType="DdwlCabinets">
+		SELECT *
+		FROM ddwl_cabinets
+		WHERE device_id = #{deviceId} AND total_door_id = #{totalDoorId}
+		LIMIT 1
+	</select>
+
+	<select id="getDoorPriceList" resultType="com.jeesite.modules.ddwl.search.DoorPriceSearch">
+		SELECT 	c.id, c.device_id, c.plate_id, c.door_id, c.total_door_id, c.door_size, c.state,
+		p.money1 money, p.over_money1 over_money, p.over_time1 over_time, p.over_unit1 over_unit
+		FROM ddwl_cabinets c
+		LEFT JOIN ddwl_door_price p ON c.id = p.door_id
+		WHERE c.device_id = #{deviceId} and c.status = 0
+		<if test="doorSize != null and doorSize !=''">
+			AND c.door_size = #{doorSize}
+		</if>
+	</select>
+
+	<select id="getDoorDetailById" resultType="com.jeesite.modules.ddwl.search.DoorPriceSearch">
+		SELECT 	c.id, c.device_id, c.plate_id, c.door_id, c.total_door_id, c.door_size, c.state,d.device_remark,
+		p.money1 money, p.over_money1 over_money, p.over_time1 over_time, p.over_unit1 over_unit
+		FROM ddwl_cabinets c
+		LEFT JOIN ddwl_door_price p ON c.id = p.door_id
+		LEFT JOIN ddwl_device d ON d.device_id = c.device_id
+		WHERE c.id = #{doorId}
+	</select>
+</mapper>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.zhinenggui.dao.ZngDeviceViewDataDao">
+	<select id="findList" resultType="ZngDeviceViewData">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> 
+	<select id="getOneByIdAndNumber" resultType="ZngDeviceViewData">
+		SELECT	*
+		FROM
+		zhinenggui_device_view_data a
+		WHERE
+		a.status='0' AND a.device_id= #{deviceId} AND a.device_number=${deviceNumber} order by a.create_date DESC LIMIT 1
+	</select>
+		<select id="getOneByNumber" resultType="ZngDeviceViewData">
+		SELECT	*
+		FROM
+		zhinenggui_device_view_data a
+		WHERE
+		a.status='0' AND a.device_number=${deviceNumber} order by a.create_date DESC LIMIT 1
+	</select>
+	
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.ddwl.dao.DdwlDoorPriceDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="DdwlDoorPrice">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+	<select id="findTreeList" resultType="com.jeesite.modules.ddwl.entity.DdwlDoorPriceTree">
+		SELECT 0 pid, device_id doorId , device_remark `name` FROM ddwl_device
+		UNION ALL
+		SELECT device_id pid ,id doorId, CONCAT(total_door_id,'号门') `name` FROM ddwl_cabinets
+	</select>
+
+	<select id="getDoorPriceByDoorId" resultType="DdwlDoorPrice" parameterType="java.lang.String">
+		SELECT * FROM ddwl_door_price WHERE door_id = #{doorId}
+	</select>
+</mapper>

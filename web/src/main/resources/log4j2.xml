@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status = "off">
+  <Properties>
+    <Property name = "LOG_HOME">${pom.log.dir}</Property>
+    <!-- 日志备份目录 -->
+    <Property name = "BACKUP_HOME">${pom.log.dir}/${pom.log.dir.backup}</Property>
+    <Property name = "SERVER_NAME">${pom.log.name}</Property>
+    <Property name = "EVERY_FILE_SIZE">${pom.log.filesize}</Property><!-- 日志切割的最小单位 -->
+    <Property name = "OUTPUT_LOG_LEVEL">${pom.log.level}</Property><!-- 日志输出级别 -->
+  </Properties>
+  <Appenders>
+    <!--输出控制台的配置 -->
+    <Console name = "console" target = "SYSTEM_OUT">
+      <!--控制台只输出level及以上级别的信息（onMatch） -->
+      <!-- onmismatch="NEUTRAL" 表示不匹配比此日志级别低的 -->
+      <ThresholdFilter level = "info" onMatch = "ACCEPT" onMismatch = "NEUTRAL"/>
+      <PatternLayout
+          pattern = "%date{HH:mm:ss.SSS} [%thread] %-5level %logger{36} %L %M - %msg%xEx%n"/>
+    </Console>
+    <!-- 通用日志 -->
+    <RollingRandomAccessFile name = "commonInfoFile" immediateFlush = "false"
+                             fileName = "${LOG_HOME}/${SERVER_NAME}.log"
+                             filePattern = "${BACKUP_HOME}/$${date:yyyy-MM}/${SERVER_NAME}.%d{yyyy-MM-dd}_%i.gz">
+      <PatternLayout
+          pattern = "%date{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} %L %M - %msg%xEx%n"/>
+      <Policies>
+        <SizeBasedTriggeringPolicy size = "${EVERY_FILE_SIZE}"/>
+        <!-- 间隔时间：1h -->
+        <TimeBasedTriggeringPolicy interval = "1" modulate = "true"/>
+      </Policies>
+      <Filters>
+        <!-- 拒绝error，只记录info，注意顺序 -->
+        <ThresholdFilter level = "error" onMatch = "DENY" onMismatch = "NEUTRAL"/>
+        <ThresholdFilter level = "info" onMatch = "ACCEPT" onMismatch = "DENY"/>
+      </Filters>
+      <!-- 指定每天的最大压缩包个数，默认7个，超过了会覆盖之前的 -->
+      <DefaultRolloverStrategy max = "50"/>
+    </RollingRandomAccessFile>
+    <!-- 通用error级日志 -->
+    <RollingRandomAccessFile name = "commonFileError" immediateFlush = "false"
+                             fileName = "${LOG_HOME}/${SERVER_NAME}_error.log"
+                             filePattern = "${BACKUP_HOME}/$${date:yyyy-MM}/${SERVER_NAME}.%d{yyyy-MM-dd}_%i_error.gz">
+      <PatternLayout
+          pattern = "%date{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} %L %M - %msg%xEx%n"/>
+      <Policies>
+        <SizeBasedTriggeringPolicy size = "${EVERY_FILE_SIZE}"/>
+        <TimeBasedTriggeringPolicy interval = "1" modulate = "true"/>
+      </Policies>
+      <Filters>
+        <!-- 只记录error -->
+        <ThresholdFilter level = "error" onMatch = "ACCEPT" onMismatch = "DENY"/>
+      </Filters>
+      <DefaultRolloverStrategy max = "50"/>
+    </RollingRandomAccessFile>
+  </Appenders>
+  <Loggers>
+    <logger name = "com.bbf.tio.server.TioServer"
+            level = "DEBUG" additivity = "false">
+      <appender-ref ref = "console"/>
+    </logger>
+    <AsyncRoot level = "${OUTPUT_LOG_LEVEL}" additivity = "false">
+      <AppenderRef ref = "console"/>
+      <AppenderRef ref = "commonInfoFile"/>
+      <AppenderRef ref = "commonFileError"/>
+    </AsyncRoot>
+  </Loggers>
+</Configuration>

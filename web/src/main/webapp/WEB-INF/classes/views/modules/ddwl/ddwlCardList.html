@@ -1,0 +1,94 @@
+<% layout('/layouts/default.html', {title: 'ic卡表管理', libs: ['dataGrid']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text('ic卡表管理')}
+			</div>
+			<div class="box-tools pull-right">
+				<a href="#" class="btn btn-default" id="btnSearch" title="${text('查询')}"><i class="fa fa-filter"></i> ${text('查询')}</a>
+
+				<% if(hasPermi('ddwl:ddwlCard:edit')){ %>
+					<a href="${ctx}/ddwl/ddwlCard/read" class="btn btn-default btnTool" id="btnReadCard" title="${text('刷卡识别')}"><i class="icon-social-foursqare"></i> ${text('刷卡识别')}</a>
+					<a href="${ctx}/ddwl/ddwlCard/readAdd" class="btn btn-default btnTool" title="${text('新增ic卡表')}"><i class="fa fa-plus"></i> ${text('新增')}</a>
+				<% } %>
+			</div>
+		</div>
+		<div class="box-body">
+			<#form:form id="searchForm" model="${ddwlCard}" action="${ctx}/ddwl/ddwlCard/listData" method="post" class="form-inline hide"
+					data-page-no="${parameter.pageNo}" data-page-size="${parameter.pageSize}" data-order-by="${parameter.orderBy}">
+				<div class="form-group">
+					<label class="control-label">${text('手机号')}：</label>
+					<div class="control-inline">
+						<#form:input path="phone" maxlength="255" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('用户名')}：</label>
+					<div class="control-inline">
+						<#form:input path="userName" maxlength="255" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('设备门')}：</label>
+					<div class="control-inline">
+						<#form:input path="doorId" maxlength="255" class="form-control width-120"/>
+					</div>
+				</div>
+				<!--<div class="form-group">-->
+					<!--<label class="control-label">${text('status')}：</label>-->
+					<!--<div class="control-inline width-120">-->
+						<!--<#form:select path="status" dictType="sys_search_status" blankOption="true" class="form-control"/>-->
+					<!--</div>-->
+				<!--</div>-->
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-sm">${text('查询')}</button>
+					<button type="reset" class="btn btn-default btn-sm">${text('重置')}</button>
+				</div>
+			</#form:form>
+			<table id="dataGrid"></table>
+			<div id="dataGridPage"></div>
+		</div>
+	</div>
+</div>
+<% } %>
+<script>
+// 初始化DataGrid对象
+$('#dataGrid').dataGrid({
+	searchForm: $("#searchForm"),
+	columnModel: [
+        {header:'${text('卡号')}', name:'cardNum', index:'a.card_num', width:150, align:"center"},
+        {header:'${text('联系电话')}', name:'phone', index:'a.phone', width:150, align:"left"},
+		{header:'${text('姓名')}', name:'userName', index:'a.user_name', width:150, align:"left"},
+		{header:'${text('绑定设备')}', name:'deviceRemark', index:'a.device_remark', width:150, align:"left", formatter: function(val, obj, row, act){
+                return val+"柜";
+            }},
+		{header:'${text('绑定柜门')}', name:'totalDoorId', index:'a.total_door_id', width:150, align:"left", formatter: function(val, obj, row, act){
+                return val != null? val+"号门" : "未绑定";
+            }},
+        {header:'${text('所属公司')}', name:'companyName', index:'a.company_name', width:150, align:"left"},
+        {header:'${text('创建时间')}', name:'createDate', index:'a.create_date', width:150, align:"left"},
+		{header:'${text('状态')}', name:'status', index:'a.status', width:150, align:"center", formatter: function(val, obj, row, act){
+			return js.getDictLabel(${@DictUtils.getDictListJson('sys_search_status')}, val, '${text('未知')}', true);
+		}},
+		{header:'${text('操作')}', name:'actions', width:120, sortable:false, title:false, formatter: function(val, obj, row, act){
+			var actions = [];
+			<% if(hasPermi('ddwl:ddwlCard:edit')){ %>
+				actions.push('<a href="${ctx}/ddwl/ddwlCard/form?id='+row.id+'" class="btnList" title="${text('编辑ic卡表')}"><i class="fa fa-pencil"></i></a>&nbsp;');
+				if (row.status == Global.STATUS_NORMAL){
+					actions.push('<a href="${ctx}/ddwl/ddwlCard/disable?id='+row.id+'" class="btnList" title="${text('停用ic卡表')}" data-confirm="${text('确认要停用该ic卡表吗？')}"><i class="glyphicon glyphicon-ban-circle"></i></a>&nbsp;');
+				}
+				if (row.status == Global.STATUS_DISABLE){
+					actions.push('<a href="${ctx}/ddwl/ddwlCard/enable?id='+row.id+'" class="btnList" title="${text('启用ic卡表')}" data-confirm="${text('确认要启用该ic卡表吗？')}"><i class="glyphicon glyphicon-ok-circle"></i></a>&nbsp;');
+				}
+				actions.push('<a href="${ctx}/ddwl/ddwlCard/delete?id='+row.id+'" class="btnList" title="${text('删除ic卡表')}" data-confirm="${text('确认要删除该ic卡表吗？')}"><i class="fa fa-trash-o"></i></a>&nbsp;');
+			<% } %>
+			return actions.join('');
+		}}
+	],
+	// 加载成功后执行事件
+	ajaxSuccess: function(data){
+		
+	}
+});
+</script>

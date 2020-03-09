@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.ddwl.dao.DdwlDetailDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="DdwlDetail">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+    <!--OR ddwl_detail.user_id = #{byUser}  -->
+	<select id="findDetailList" resultType="com.jeesite.modules.ddwl.entity.DdwlDetail">
+		SELECT
+		ddwl_detail.id id, ddwl_user.phone user_id, ddwl_device.device_name device_id,
+		ddwl_detail.type type, ddwl_detail.create_time create_time, ddwl_detail.money money, ddwl_detail.state state
+		FROM ddwl_detail
+		LEFT JOIN ddwl_device ON ddwl_detail.device_id = ddwl_device.device_id
+		LEFT JOIN ddwl_user ON ddwl_user.id = ddwl_detail.user_id
+		WHERE (ddwl_device.by_user = #{byUser} OR ddwl_detail.user_id = #{byUser})
+		<if test="createTimeGte != null and createTimeLte != null">
+			AND ddwl_detail.create_time between #{createTimeGte} and #{createTimeLte}
+		</if>
+		<if test="moneyGte != 0 and moneyLte != 0">
+			AND ddwl_detail.money between #{moneyGte} and #{moneyLte}
+		</if>
+		<if test="userId != null and userId != ''">
+			AND ddwl_user.phone LIKE  '%${userId}%'
+		</if>
+		<if test="driverId != null and driverId != ''">
+			AND ddwl_device.device_name  LIKE '%${driverId}%'
+		</if>
+		<if test="detailType != -1 ">
+			AND ddwl_detail.type = #{detailType}
+		</if>
+		order by create_time desc
+	</select>
+
+	<!--ddwl_device on ddwl_detail.device_id = ddwl_device.device_id WHERE ddwl_device.by_company = 'SD1001'123456-->
+
+</mapper>

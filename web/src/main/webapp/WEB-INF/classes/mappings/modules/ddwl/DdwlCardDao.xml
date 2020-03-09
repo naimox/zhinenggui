@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.ddwl.dao.DdwlCardDao">
+	
+	<!-- 查询数据 -->
+	<select id="findList" resultType="DdwlCard">
+-- 		SELECT
+-- 		cd.*, d.device_name, u.name userName, u.phone, d.device_remark, c.total_door_id, co.company_name
+-- -- 		concat(c.total_door_id, "号门") totalDoorId
+-- 		FROM ddwl_card cd
+-- 		LEFT OUTER JOIN ddwl_user u ON cd.user_id = u.id
+-- 		LEFT OUTER OUTER JOIN js_sys_company co ON co.company_code = u.by_company_id
+-- 		LEFT OUTER JOIN ddwl_cabinets c ON c.id = cd.door_id
+-- 		LEFT OUTER JOIN ddwl_device d ON d.device_id = cd.device_id
+-- 		WHERE cd.status != '1'
+-- 		ORDER BY cd.create_date
+		SELECT a.*, co.company_name companyName FROM(
+		SELECT
+		cd.*, d.device_name, u.name userName, u.phone, d.device_remark, c.total_door_id, d.by_company
+		FROM ddwl_card cd
+		LEFT OUTER JOIN ddwl_user u ON cd.user_id = u.id
+		LEFT OUTER JOIN ddwl_cabinets c ON c.id = cd.door_id
+		LEFT OUTER JOIN ddwl_device d ON d.device_id = cd.device_id
+		WHERE cd.status != '1'
+		<if test="phone != null and phone !=''">
+			and u.phone LIKE '%${phone}%'
+		</if>
+		<if test="userName != null and userName != ''">
+			and u.name LIKE '%${userName}%'
+		</if>
+		<if test="doorId != null and doorId != ''">
+			and d.device_name LIKE '%${doorId}%'
+		</if>
+		)  a
+		LEFT JOIN js_sys_company co ON co.company_code = a.by_company
+		ORDER BY a.create_date
+	</select>
+
+	<select id="checkDoorIdExist" resultType="DdwlCard">
+		SELECT * FROM ddwl_card WHERE door_id = #{totalDoorId} AND status != '1'
+		<if test="id != null and id != ''">
+			AND id != #{id}
+		</if>
+	</select>
+
+	<select id="checkCardIdExist" resultType="DdwlCard">
+		SELECT * FROM ddwl_card WHERE card_id = #{cardId} AND status != '1'
+		<if test="id != null and id != ''">
+			AND id != #{id}
+		</if>
+	</select>
+
+	<select id="findByCardId" resultType="DdwlCard">
+		SELECT cd.*, u.name userName, u.phone, c.total_door_id, c.id doorId, u.is_manager cardType
+		FROM ddwl_card cd
+		LEFT JOIN ddwl_user u ON cd.user_id = u.id
+		LEFT JOIN ddwl_cabinets c ON c.id = cd.door_id
+		WHERE cd.card_id = #{cardId} AND cd.status != '1'
+	</select>
+
+	<select id="findByDoorId" resultType="DdwlCard">
+		SELECT * FROM ddwl_card WHERE door_id = #{doorId} AND status != '1'
+	</select>
+
+	<select id="getByCardNumAndDeviceId" resultType="DdwlCard">
+		SELECT * FROM ddwl_card WHERE card_num = #{cardNum} AND device_id = #{deviceId} AND status != '1'
+	</select>
+
+</mapper>

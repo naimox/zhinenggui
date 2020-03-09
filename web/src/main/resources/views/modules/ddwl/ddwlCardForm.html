@@ -1,0 +1,157 @@
+<% layout('/layouts/default.html', {title: 'ic卡表管理', libs: ['validate']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header with-border">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text(zhinengguiCard.isNewRecord ? '新增ic卡表' : '编辑ic卡表')}
+			</div>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+			</div>
+		</div>
+		<#form:form onkeydown="if(event.keyCode==13){return false;}" id="inputForm" model="${zhinengguiCard}" action="${ctx}/zhinenggui/zhinengguiCard/save" method="post" class="form-horizontal">
+			<div class="box-body">
+				<div class="form-unit">${text('基本信息')}</div>
+				<#form:hidden path="id"/>
+				<div class="row">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-sm-2" title="">
+									<span class="required hide">*</span> ${text('卡号')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-5">
+									<#form:hidden path="cardId"/>
+									<#form:input path="cardNum" maxlength="255" class="form-control"/>
+								</div>
+							</div>
+						</div>
+					</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label col-sm-2" title="">
+								<span class="required hide">*</span> ${text('姓名')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-5">
+								<#form:input path="userName" maxlength="255" class="form-control"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label col-sm-2" title="">
+								<span class="required hide">*</span> ${text('联系电话')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-5">
+								<#form:input path="phone" maxlength="255" class="form-control"/>
+							</div>
+						</div>
+					</div>
+				</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-sm-2" title="">
+									<span  class="required hide">*</span> ${text('绑定有效时间')}：<i class="fa icon-question hide"></i></label>
+								<div id="typeDiv" class="col-sm-8">
+									<input id="endCheckOn" type="radio" name="endCheck" value="1" onclick="clearEndTime()" />不限&nbsp;
+									<input id="endCheckOff" type="radio" name="endCheck" value="0" onclick="openEndTime()">
+									选择日期： <#form:input path="endTime" readonly="true" maxlength="20" class="Wdate" readonly="readonly"
+									dataFormat="datetime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false, minDate:'%y-%M-%d'});"/>
+
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label col-sm-4" title="">
+									<span class="required hide">*</span> ${text('卡片类型')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-8">
+									<#form:radio path="type" dictType="card_type" class="form-control" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label col-sm-2" title="">
+								<span class="required hide">*</span> ${text('绑定设备号')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-5">
+								<#form:input path="deviceId" maxlength="255" class="form-control"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label col-sm-2" title="">
+								<span class="required hide">*</span> ${text('绑定柜门')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-5">
+								<#form:input path="totalDoorId" maxlength="255" class="form-control"/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="box-footer">
+				<div class="row">
+					<div class="col-sm-offset-2 col-sm-10">
+						<% if (hasPermi('zhinenggui:zhinengguiCard:edit')){ %>
+							<button type="submit" class="btn btn-sm btn-primary" id="btnSubmit"><i class="fa fa-check"></i> ${text('保 存')}</button>&nbsp;
+						<% } %>
+						<button type="button" class="btn btn-sm btn-default" id="btnCancel" onclick="js.closeCurrentTabPage()"><i class="fa fa-reply-all"></i> ${text('关 闭')}</button>
+					</div>
+				</div>
+			</div>
+		</#form:form>
+	</div>
+</div>
+<% } %>
+<script>
+    // $("#endTime").bind("input propertychange",function(event){
+	 //    alert($("#endTime").val())
+    //     $("#timeStr").val = $("#endTime").val()
+    //     // console.log($("#end").val())
+    // });
+function openEndTime() {
+	$("#endCheckOff")
+}
+
+function clearEndTime(){
+    $("#endTime").val("")
+}
+function onclickEndTime(){
+    $("#endTime").selected()
+    $("#endTime").click()
+}
+$(document).ready(function(){
+    // d="endCheckOn" type="radio" name="type" value="1990-01-01" checked = ${zhinengguiCard.type}='1'/>
+    //     选择日期：<input id="endTimeRadio"
+	var type1 = $("#endTime").val();
+	// alert("type"+type1)
+	if (type1 == ''){
+        $("#endCheckOn").attr("checked","checked");
+	}
+	$("#endTime").click(function(event) {
+        $("#endCheckOff").attr("checked","checked");
+        $("#endCheckOn").prop("checked",false);
+    })
+})
+
+$("#inputForm").validate({
+	submitHandler: function(form){
+		js.ajaxSubmitForm($(form), function(data){
+			js.showMessage(data.message);
+			if(data.result == Global.TRUE){
+				js.closeCurrentTabPage(function(contentWindow){
+					contentWindow.page();
+				});
+			}
+		}, "json");
+    }
+});
+</script>

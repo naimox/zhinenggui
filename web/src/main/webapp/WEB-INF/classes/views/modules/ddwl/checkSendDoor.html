@@ -1,0 +1,70 @@
+<% layout('/layouts/default.html', {title: '订单表管理', libs: ['validate']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header with-border">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text(ddwlOrder.isNewRecord ? '新增订单表' : '编辑订单表')}
+			</div>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+			</div>
+		</div>
+		<#form:form id="inputForm" model="${ddwlOrder}" action="${ctx}/ddwl/ddwlOrder/openTheDoor" method="post" class="form-horizontal">
+			<input type="hidden" name="deviceId" value="${deviceId}"/>
+			<div class="box-body">
+				<div class="form-unit">${text('基本信息')}</div>
+				<#form:hidden path="id"/>
+				<div class="row">
+					<div class="row">
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label col-sm-4" title="">
+									<span class="required ">*</span> ${text('快递单号')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-8">
+									<#form:hidden path="userId" maxlength="255" class="form-control required"/>
+									<#form:input path="expressNumber" maxlength="255" class="form-control required"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label col-sm-4" title="">
+									<span class="required hide">*</span> ${text('选择柜门')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-8">
+									<#form:radio name="doorType" dictType="door_size" class="form-control required"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label col-sm-4" title="">
+									<span class="required hide">*</span> ${text('快递费（到付）')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-8">
+									<#form:input name="expressMoney" maxlength="255" class="form-control required"/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="box-footer">
+					<div class="row">
+						<div class="col-sm-offset-2 col-sm-10">
+							<% if (hasPermi('ddwl:ddwlOrder:edit')){ %>
+							<% } %>
+							<button type="submit" class="btn btn-sm btn-primary" id="btnSubmit"><i class="fa fa-check"></i> ${text('保 存')}</button>&nbsp;
+							<button type="button" class="btn btn-sm btn-default" id="btnCancel" onclick="js.closeCurrentTabPage()"><i class="fa fa-reply-all"></i> ${text('关 闭')}</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</#form:form>
+	</div>
+</div>
+<% } %>
+<script>
+
+</script>

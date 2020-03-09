@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.zhinenggui.dao.ZngDeviceDao">
+	
+
+	<select id="findList" resultType="ZngDevice">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()} ${sqlMap.dsf} 
+		</where>
+		 
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> 
+
+	<select id="getOneByDeviceId" resultType="ZngDevice" parameterType="java.lang.String">
+		SELECT *
+		FROM zhinenggui_device
+		WHERE status = 0 AND 
+		device_id = #{deviceId}
+	</select>
+	
+	<select id="getFileImageList" resultType="com.jeesite.modules.zhinenggui.search.FileImageSearch" parameterType="java.lang.String">
+		select e.file_id,e.file_path,e.file_content_type,e.file_extension,j.create_date,d.id as order_id
+		 from js_sys_file_upload j,zhinenggui_order d,js_sys_file_entity e
+		where d.id = j.biz_key and j.file_id = e.file_id and d.send_device_id = #{deviceId} and j.status = 0  ORDER BY j.create_date
+	</select>
+	
+		<select id="getFileDeviceImageList" resultType="com.jeesite.modules.zhinenggui.search.FileImageSearch" parameterType="java.lang.String">
+		select e.file_id,e.file_path,e.file_content_type,e.file_extension,j.create_date
+		from js_sys_file_upload j,zhinenggui_device d,js_sys_file_entity e
+		where d.id = j.biz_key and j.file_id = e.file_id and d.device_id = #{deviceId} and j.status = 0 ORDER BY j.create_date
+	</select>
+	
+</mapper>

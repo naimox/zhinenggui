@@ -1,0 +1,224 @@
+<% layout('/layouts/default.html', {title: '柜门价格表管理', libs: ['validate']}){ %>
+<style>
+	body{margin: 0;}
+	ul,li{list-style: none;margin: 0;}
+	ul{overflow: hidden;}
+	li{float: left;font-size:16px;line-height: 28px;margin: 5px;}
+	h1{font-weight: normal;font-size: 20px;line-height: 40px;}
+	.kuaidi{margin-left: 3%;}
+	.eleInput{width: 148px;border: 0;height: 24px;margin-top: 0px;text-align:right;}
+	.eleInput1{width: 198px;border: 0;height: 24px;margin-top: 0px;text-align:right;}
+	.eleInput2{width: 124px;border: 0;height: 24px;margin-top: 0px;text-align:right;}
+	.eleInput3{width: 262px;border: 0;height: 24px;margin-top: 0px;text-align:right;}
+</style>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header with-border">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text(ddwlDoorPrice.isNewRecord ? '新增柜门价格表' : '编辑柜门价格表')}
+			</div>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+			</div>
+		</div>
+		<#form:form id="inputForm" model="${ddwlDoorPrice}" action="${ctx}/ddwl/ddwlDoorPrice/save" method="post" class="form-horizontal">
+			<div class="box-body">
+				<div class="form-unit">${text('基本信息')}</div>
+				<#form:hidden path="id"/>
+				<#form:hidden path="doorId"/>
+				<!--<div class="row">
+					&lt;!&ndash;<div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" title="">
+                                    <span class="required hide">*</span> ${text('门ID')}：<i class="fa icon-question hide"></i></label>
+                                <div class="col-sm-5">
+                                    <#form:treeselect title="${text('柜门选择')}"
+                                            path="doorId" labelPath="name"
+                                            url="${ctx}/ddwl/ddwlDoorPrice/treeData?isShowCode=true"
+                                            class="" allowClear="true"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>&ndash;&gt;
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-sm-2" title="">
+									<span class="required hide">*</span> ${text('快递柜价格')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-5">
+									<#form:input path="money" maxlength="255" class="form-control"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-sm-2" title="">
+									<span class="required hide">*</span> ${text('快递柜单次时间')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-5">
+									<#form:input path="overTime" class="form-control number"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-sm-2" title="">
+									<span class="required hide">*</span> ${text('快递柜超时时间单位/分')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-5">
+									<#form:input path="overUnit" maxlength="255" class="form-control number"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-sm-2" title="">
+									<span class="required hide">*</span> ${text('快递柜超时价格')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-5">
+									<#form:input path="overMoney" maxlength="255" class="form-control number"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-sm-2" title="">
+									<span class="required hide">*</span> ${text('暂存柜价格')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-5">
+									<#form:input path="money1" maxlength="255" class="form-control"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-sm-2" title="">
+									<span class="required hide">*</span> ${text('暂存柜单次时间')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-5">
+									<#form:input path="overTime1" class="form-control number"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-sm-2" title="">
+									<span class="required hide">*</span> ${text('暂存柜超时时间单位/分')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-5">
+									<#form:input path="overUnit1" maxlength="255" class="form-control number"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-sm-2" title="">
+									<span class="required hide">*</span> ${text('暂存柜超时价格')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-5">
+									<#form:input path="overMoney1" maxlength="255" class="form-control number"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-sm-2" title="">
+									<span class="required hide">*</span> ${text('快递员派件收费/次')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-5">
+									<#form:input path="courierSendMoney" maxlength="255" class="form-control number"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-sm-2" title="">
+									<span class="required hide">*</span> ${text('备注')}：<i class="fa icon-question hide"></i></label>
+								<div class="col-sm-10">
+									<#form:textarea path="remarks" rows="4" maxlength="255" class="form-control"/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>-->
+
+
+				<div class="kuaidi">
+					<h1>快递收费</h1>
+					<ul>
+						<li style="border: 1px solid #cccccc;height: 28px;width: 200px;"><#form:input path="overTime" class="eleInput1 digits"/></li>
+						<li>分钟内，消费</li>
+						<li style="border: 1px solid #cccccc;height: 28px;width: 150px;"><#form:input path="money" class="eleInput number"/></li>
+						<li>元</li>
+					</ul>
+					<ul>
+						<li>超时后：每</li>
+						<li style="border: 1px solid #cccccc;height: 28px;width: 126px;"><#form:input path="overUnit" class="eleInput2 digits"/></li>
+						<li>分钟，消费</li>
+						<li style="border: 1px solid #cccccc;height: 28px;width: 150px;"><#form:input path="overMoney" class="eleInput number"/></li>
+						<li>元</li>
+					</ul>
+				</div>
+				<div class="kuaidi">
+					<h1>暂存收费</h1>
+					<ul>
+						<li style="border: 1px solid #cccccc;height: 28px;width: 200px;"><#form:input path="overTime1" class="eleInput1 digits"/></li>
+						<li>分钟内，消费</li>
+						<li style="border: 1px solid #cccccc;height: 28px;width: 150px;"><#form:input path="money1" class="eleInput number"/></li>
+						<li>元</li>
+					</ul>
+					<ul>
+						<li>超时后：每</li>
+						<li style="border: 1px solid #cccccc;height: 28px;width: 126px;"><#form:input path="overUnit1" class="eleInput2 digits"/></li>
+						<li>分钟，消费</li>
+						<li style="border: 1px solid #cccccc;height: 28px;width: 150px;"><#form:input path="overMoney1" class="eleInput number"/></li>
+						<li>元</li>
+					</ul>
+					<ul>
+						<li>快递员收费，每次使用扣除</li>
+						<li style="border: 1px solid #cccccc;height: 28px;width: 264px;"><#form:input path="courierSendMoney" class="eleInput3 number"/></li>
+						<li>元</li>
+					</ul>
+					<ul><p style="color: #999999">一小时=60分钟；一天=1440分钟。</p></ul>
+				</div>
+
+
+				<div class="box-footer">
+					<div class="row">
+						<div class="col-sm-offset-2 col-sm-10">
+							<% if (hasPermi('ddwl:ddwlDevice:edit')){ %>
+							<button type="submit" class="btn btn-sm btn-primary" id="btnSubmit"><i class="fa fa-check"></i> ${text('保 存')}</button>&nbsp;
+							<% } %>
+							<button type="button" class="btn btn-sm btn-default" id="btnCancel" onclick="js.closeCurrentTabPage()"><i class="fa fa-reply-all"></i> ${text('关 闭')}</button>
+						</div>
+					</div>
+				</div>
+		</#form:form>
+	</div>
+</div>
+<% } %>
+<script>
+    $("#inputForm").validate({
+        submitHandler: function(form){
+            js.ajaxSubmitForm($(form), function(data){
+                js.showMessage(data.message);
+                if(data.result == Global.TRUE){
+                    js.closeCurrentTabPage(function(contentWindow){
+                        contentWindow.page();
+                    });
+                }
+            }, "json");
+        }
+    });
+</script>

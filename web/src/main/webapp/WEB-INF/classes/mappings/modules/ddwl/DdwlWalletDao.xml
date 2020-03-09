@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.ddwl.dao.DdwlWalletDao">
+	
+	<!-- 查询数据-->
+	<select id="findList" resultType="DdwlWallet">
+		<!--SELECT ${sqlMap.column.toSql()}-->
+		<!--FROM ${sqlMap.table.toSql()}-->
+		<!--<where>-->
+			<!--${sqlMap.where.toSql()}-->
+		<!--</where>-->
+		<!--ORDER BY ${sqlMap.order.toSql()}-->
+		SELECT u.phone user_id, u.`name` remarks, w.balance balance, w.create_date create_date
+		FROM ddwl_wallet AS w
+		LEFT JOIN ddwl_user AS u ON w.user_id = u.id
+		WHERE w.status = 0
+		<if test="userId != null and  userId != ''">
+			and u.phone = #{userId}
+		</if>
+		<if test="balance !=null and balance !=''">
+			and w.balance = #{balance}
+		</if>
+		<if test="remarks != null and remarks != ''">
+			and u.name = #{remarks}
+		</if>
+	</select>
+
+	<select id="getWalletByUserId" resultType="DdwlWallet" parameterType="java.lang.String">
+		SELECT * FROM ddwl_wallet WHERE user_id = #{userId}
+	</select>
+
+	<select id="getWalletByOpenId" resultType="DdwlWallet" parameterType="java.lang.String">
+		SELECT ddwl_wallet.* FROM ddwl_wallet
+		LEFT JOIN js_sys_user ON ddwl_wallet.user_id = js_sys_user.user_code
+		WHERE js_sys_user.wx_openid = #{openid}
+	</select>
+
+</mapper>

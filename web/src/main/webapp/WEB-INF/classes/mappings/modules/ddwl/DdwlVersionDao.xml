@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.ddwl.dao.DdwlVersionDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="DdwlVersion">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+	<select id="getInfoByPacketName" parameterType="java.lang.String" resultType="com.jeesite.modules.ddwl.entity.DdwlVersion">
+		select * from ddwl_version where packet_name =  #{packetName} and status = '0' order by `level` desc limit 1
+	</select>
+</mapper>

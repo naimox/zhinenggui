@@ -1,0 +1,161 @@
+<% layout('/layouts/default.html', {title: '订单表管理', libs: ['dataGrid']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text('订单表管理')}
+			</div>
+			<div class="box-tools pull-right">
+				<a href="#" class="btn btn-default" id="btnSearch" title="${text('查询')}"><i class="fa fa-filter"></i> ${text('查询')}</a>
+				<!--<% if(hasPermi('ddwl:ddwlOrder:edit')){ %>
+					<a href="${ctx}/ddwl/ddwlOrder/form" class="btn btn-default btnTool" title="${text('新增订单表')}"><i class="fa fa-plus"></i> ${text('新增')}</a>
+				<% } %>-->
+			</div>
+		</div>
+		<div class="box-body">
+			<#form:form id="searchForm" model="${ddwlOrder}" action="${ctx}/ddwl/ddwlOrder/listData" method="post" class="form-inline hide"
+					data-page-no="${parameter.pageNo}" data-page-size="${parameter.pageSize}" data-order-by="${parameter.orderBy}">
+
+				<div class="form-group">
+					<label class="control-label">${text('快递单号')}：</label>
+					<div class="control-inline">
+						<#form:input path="expressNumber" maxlength="255" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('设备号')}：</label>
+					<div class="control-inline">
+						<#form:input path="deviceId" maxlength="255" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('验证码')}：</label>
+					<div class="control-inline">
+						<#form:input path="code" maxlength="255" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('柜门号')}：</label>
+					<div class="control-inline">
+						<#form:input path="totalDoorId" maxlength="255" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('快递员姓名')}：</label>
+					<div class="control-inline">
+						<#form:input path="courierSendName" maxlength="255" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('收件人手机号')}：</label>
+					<div class="control-inline">
+						<#form:input path="getterPhone" maxlength="255" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('订单类型')}：</label>
+					<div class="control-inline width-120">
+						<#form:select path="orderType" dictType="order_type" blankOption="true" class="form-control"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('订单状态')}：</label>
+					<div class="control-inline width-120">
+						<#form:select path="state" dictType="order_state" blankOption="true" class="form-control"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-sm">${text('查询')}</button>
+					<button type="reset" class="btn btn-default btn-sm">${text('重置')}</button>
+				</div>
+			</#form:form>
+			<table id="dataGrid"></table>
+			<div id="dataGridPage"></div>
+		</div>
+	</div>
+</div>
+<% } %>
+<script>
+// 初始化DataGrid对象
+$('#dataGrid').dataGrid({
+	searchForm: $("#searchForm"),
+	columnModel: [
+//		{header:'${text('用户ID')}', name:'userId', index:'a.user_id', width:150, align:"left", frozen:true, formatter: function(val, obj, row, act){
+//			return '<a href="${ctx}/ddwl/ddwlOrder/form?id='+row.id+'" class="btnList" data-title="${text('编辑订单表')}">'+(val||row.id)+'</a>';
+//		}},
+		{header:'${text('设备编号')}', name:'deviceId', width:80, align:"left"},
+		{header:'${text('存放位置')}', name:'addr', width:150, align:"left"},
+		{header:'${text('订单类型')}', name:'orderType', width:70, align:"left"},
+		{header:'${text('订单状态')}', name:'state', index:'a.state', width:70, align:"left", formatter: function(val, obj, row, act) {
+            if (val == 100) {
+                return '已下单';
+            } else if (val == 200) {
+                return '待收取';
+            } else if (val == 300) {
+                return '已入库';
+            } else if (val == 400) {
+                return '待取件';
+            } else if (val == 500) {
+            	return '已支付';
+            } else if (val == 600) {
+            	return '已完成';
+        	} else {
+                return '未知';
+            }
+        }},
+		{header:'${text('取件码')}', name:'code', width:70, align:"left"},
+		{header:'${text('运单号')}', name:'expressNumber', width:150, align:"left"},
+		{header:'${text('用户电话')}', name:'getterPhone', width:110, align:"left"},
+		{header:'${text('存入时间')}', name:'sendTime', width:150, align:"left"},
+		{header:'${text('取出时间')}', name:'getterTime', width:150, align:"left"},
+		{header:'${text('取出收费')}', name:'sendTotalMoney', width:80, align:"left"},
+		{header:'${text('快递员')}', name:'courierSendName', width:150, align:"left"},
+		{header:'${text('快递员手机号')}', name:'courierPhone', width:150, align:"left"}
+//		,
+//		{header:'${text('图片1/存件取件')}', name:'imageOne', index:'a.image_one', width:150, align:"left"},
+//		{header:'${text('图片2/存件取件')}', name:'imageTwo', index:'a.image_two', width:150, align:"left"},
+//		{header:'${text('送件人姓名')}', name:'senderUserName', index:'a.sender_user_name', width:150, align:"left"},
+//		{header:'${text('送件时间')}', name:'senderTime', index:'a.sender_time', width:150, align:"left"},
+//		{header:'${text('送件地址')}', name:'senderAddress', index:'a.sender_address', width:150, align:"left"},
+//		{header:'${text('送件备注')}', name:'senderRemark', index:'a.sender_remark', width:150, align:"left"},
+//		{header:'${text('收货人姓名')}', name:'getterUserName', index:'a.getter_user_name', width:150, align:"left"},
+//		{header:'${text('收货人手机号')}', name:'getterPhone', index:'a.getter_phone', width:150, align:"left"},
+//		{header:'${text('收货地址')}', name:'getterAddress', index:'a.getter_address', width:150, align:"left"},
+//		{header:'${text('收货时间')}', name:'getterTime', index:'a.getter_time', width:150, align:"left"},
+//		{header:'${text('收货备注')}', name:'getterComment', index:'a.getter_comment', width:150, align:"left"},
+//		{header:'${text('快件收件员姓名')}', name:'courierGetName', index:'a.courier_get_name', width:150, align:"left"},
+//		{header:'${text('快递员收件时间')}', name:'courierGetTime', index:'a.courier_get_time', width:150, align:"left"},
+//		{header:'${text('快递送件员姓名')}', name:'courierSendName', index:'a.courier_send_name', width:150, align:"left"},
+//		{header:'${text('快递送件时间')}', name:'courierSendTime', index:'a.courier_send_time', width:150, align:"left"},
+//		{header:'${text('寄件柜id')}', name:'getDoorId', index:'a.get_door_id', width:150, align:"left"},
+//		{header:'${text('收件柜id')}', name:'sendDoorId', index:'a.send_door_id', width:150, align:"left"},
+//		{header:'${text('寄件总金额')}', name:'getTotalMoney', index:'a.get_total_money', width:150, align:"left"},
+//		{header:'${text('收件总金额')}', name:'sendTotalMoney', index:'a.send_total_money', width:150, align:"left"},
+//		{header:'${text('快递单号')}', name:'expressNumber', index:'a.express_number', width:150, align:"left"},
+//		{header:'${text('快递公司')}', name:'expressCompany', index:'a.express_company', width:150, align:"left"},
+//		{header:'${text('取件码ID')}', name:'codeId', index:'a.code_id', width:150, align:"left"},
+//		{header:'${text('支付类型')}', name:'paymentTpye', index:'a.payment_tpye', width:150, align:"left"},
+//		{header:'${text('创建时间')}', name:'createDate', index:'a.create_date', width:150, align:"center"},
+//		{header:'${text('备注')}', name:'remarks', index:'a.remarks', width:150, align:"left"},
+		/*{header:'${text('操作')}', name:'actions', width:120, sortable:false, title:false, formatter: function(val, obj, row, act){
+			var actions = [];
+			<% if(hasPermi('ddwl:ddwlOrder:edit')){ %>
+				actions.push('<a href="${ctx}/ddwl/ddwlOrder/form?id='+row.id+'" class="btnList" title="${text('编辑订单表')}"><i class="fa fa-pencil"></i></a>&nbsp;');
+				if (row.status == Global.STATUS_NORMAL){
+					actions.push('<a href="${ctx}/ddwl/ddwlOrder/disable?id='+row.id+'" class="btnList" title="${text('停用订单表')}" data-confirm="${text('确认要停用该订单表吗？')}"><i class="glyphicon glyphicon-ban-circle"></i></a>&nbsp;');
+				}
+				if (row.status == Global.STATUS_DISABLE){
+					actions.push('<a href="${ctx}/ddwl/ddwlOrder/enable?id='+row.id+'" class="btnList" title="${text('启用订单表')}" data-confirm="${text('确认要启用该订单表吗？')}"><i class="glyphicon glyphicon-ok-circle"></i></a>&nbsp;');
+				}
+				actions.push('<a href="${ctx}/ddwl/ddwlOrder/delete?id='+row.id+'" class="btnList" title="${text('删除订单表')}" data-confirm="${text('确认要删除该订单表吗？')}"><i class="fa fa-trash-o"></i></a>&nbsp;');
+			<% } %>
+			return actions.join('');
+		}}*/
+	],
+	frozenCols: true,
+	// 加载成功后执行事件
+	ajaxSuccess: function(data){
+		
+	}
+});
+</script>

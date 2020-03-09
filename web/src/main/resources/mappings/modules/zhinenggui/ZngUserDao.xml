@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.zhinenggui.dao.ZngUserDao">
+	
+	
+	<select id="findList" resultType="ZngUser">
+		SELECT ${sqlMap.column.toSql()}
+		
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()} ${sqlMap.userQx}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select>
+	<select id="findByTel" parameterType="java.lang.String" resultType="com.jeesite.modules.zhinenggui.entity.ZngUser">
+		select * from zhinenggui_user where phone =  #{tel} and status = "0"
+		ORDER BY update_date desc limit 1
+	</select> 
+
+	<select id="findByLoginName" parameterType="java.lang.String" resultType="com.jeesite.modules.zhinenggui.entity.ZngUser">
+		select * from zhinenggui_user where login_name =  #{loginName} and status = "0" ORDER BY update_date desc limit 1
+	</select>
+	<select id="findByLoginNameReList" parameterType="java.lang.String" resultType="com.jeesite.modules.zhinenggui.entity.ZngUser">
+		select * from zhinenggui_user where login_name =  #{loginName} and status = "0"
+	</select>
+	<select id="findOneByWxId" parameterType="java.lang.String" resultType="ZngUser">
+		select * from zhinenggui_user where wx_id =  #{wxId} and status = '0'
+	</select>
+
+</mapper>

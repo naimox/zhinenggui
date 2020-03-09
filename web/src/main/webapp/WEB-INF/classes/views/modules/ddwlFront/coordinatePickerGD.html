@@ -1,0 +1,82 @@
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>鼠标拾取地图坐标</title>
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
+    <script type="text/javascript" src="https://cache.amap.com/lbs/static/addToolbar.js"></script>
+    <script type="text/javascript" src="http://res.layui.com/layui/dist/layui.js"></script>
+   	<script type="text/javascript" src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<style type="text/css">
+    html,body{
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+    }
+    .map{
+        height: 100%;
+        width: 100%;
+        float: left;
+    }
+</style>
+<body>
+<div id="container" class="map"></div>
+<div class="input-card">
+    <h4>左击获取经纬度：</h4>
+    <div class="input-item">
+      <input type="text" readonly="true" id="lat">
+      <input type="text" readonly="true" id="lng">
+    </div>
+    <button id="closeIframe" class="closeIframe">确定</button>
+</div>
+
+<script src="https://webapi.amap.com/maps?v=1.4.11&key=a3fdc990ede98dd6edf50b08626c4f7e&plugin=AMap.Autocomplete"></script>
+<script type="text/javascript">
+    var map = new AMap.Map("container", {
+        resizeEnable: true
+    });
+    //为地图注册click事件获取鼠标点击出的经纬度坐标
+    map.on('click', function(e) {
+        document.getElementById("lat").value = e.lnglat.getLat();
+        document.getElementById("lng").value = e.lnglat.getLng();
+    });
+    var auto = new AMap.Autocomplete({
+        input: "tipinput"
+    });
+    AMap.event.addListener(auto, "select", select);//注册监听，当选中某条记录时会触发
+    function select(e) {
+        if (e.poi && e.poi.location) {
+            map.setZoom(15);
+            map.setCenter(e.poi.location);
+        }
+    }
+</script>
+<script>
+//注意：parent 是 JS 自带的全局对象，可用于操作父页面
+var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+
+
+
+//关闭iframe
+$('#closeIframe').click(function(){
+	alert(parent.layer.index);
+    var val = $('#lng').val();
+    var val2 = $("#lat").val();
+    if(val === ''){
+        parent.layer.msg('请填写标记');
+        return;
+    }
+    parent.$('#longitudeX').val(val);
+    parent.$('#latitudeY').val(val2);
+    parent.layer.close(parent.layer.index);
+
+});
+
+
+</script>
+</body>
+</html>

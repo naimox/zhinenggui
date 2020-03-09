@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.zhinenggui.dao.ZngOrderDao">
+	
+<!--	 查询数据-->
+
+
+	<select id="getOrderByExpressNumber" resultType="ZngOrder" parameterType="java.lang.String">
+		SELECT *
+		FROM zhinenggui_order
+		WHERE express_number = #{expressNumber}
+	</select>
+	
+	
+	<select id="findList" resultType="com.jeesite.modules.zhinenggui.search.OrderSearch" parameterType="com.jeesite.modules.zhinenggui.search.OrderSearch">
+select addr, 
+case 
+		when order_type = '1' then '快递派件'
+		when order_type = '2' then '用户暂存'
+		when order_type = '3' then '用户寄件'
+		else '其他'
+		end as order_type,
+		express_number,
+		courier_send_name,
+		courier_phone,
+		send_time,
+		getter_phone,
+		getter_time,
+		send_total_money,
+		state,
+		device_id,
+		`code`,
+		create_date
+		
+		from (
+SELECT
+		concat(
+		d.device_remark,'  ',
+		c.total_door_id,
+		'柜门'
+		) addr,
+		o.send_device_id as device_id,
+		c.total_door_id,
+		o.order_type,
+		o.express_number,
+		o.create_date,
+		if(o.courier_send_name is null, o.sender_user_name, o.courier_send_name) as courier_send_name,
+		if(u.phone is null, o.sender_phone, u.phone) as courier_phone,
+		if(o.user_id is null , o.sender_time, o.courier_send_time) send_time,
+		o.getter_phone,
+		o.getter_time,
+		o.send_total_money,
+		o.state,
+		o.status,
+		cd.`code`
+		FROM
+		zhinenggui_order o
+		JOIN zhinenggui_device d ON o.send_device_id = d.device_id
+		JOIN js_sys_user su on d.by_user = su.user_code 
+		<if test="userCode != null and userCode != ''">
+		and su.user_code =#{userCode}
+		</if>
+		
+		JOIN zhinenggui_cabinets c ON o.send_door_id = c.id
+		LEFT JOIN zhinenggui_user u on o.courier_send_id = u.id
+		<if test="code != null and code !=''">
+			JOIN zhinenggui_code cd on cd.id = o.code_id and cd.`code`= #{code}
+		</if>
+		<if test="code == null or code ==''">
+			left JOIN zhinenggui_code cd on cd.id = o.code_id
+		</if>
+		) as f
+		where f.status='0'
+		<if test="code != null and code !=''">
+			and f.code = #{code}
+		</if>
+		<if test="expressNumber != null and expressNumber !=''">
+			and locate(#{expressNumber}, f.express_number) > 0
+		</if>
+		<if test="courierSendName != null and courierSendName !=''">
+			and locate(#{courierSendName}, f.courier_send_name) > 0
+		</if>
+		<if test="getterPhone != null and getterPhone !=''">
+			and locate(#{getterPhone}, f.getter_phone) > 0
+		</if>
+		<if test="state != null and state !=''">
+			and f.state =  #{state}
+		</if>
+		<if test="orderType != null and orderType !=''">
+			and f.order_type =  #{orderType}
+		</if>
+		<if test="deviceId != null and deviceId !=''">
+			and locate(#{deviceId}, f.device_id) > 0
+		</if>
+		<if test="totalDoorId != null and totalDoorId !=''">
+			and f.total_door_id =  #{totalDoorId}
+		</if>
+		ORDER BY create_date DESC
+	</select>
+	
+	
+	<select id="getDoorByDeviceIdAndCode" resultType="com.jeesite.modules.zhinenggui.search.CabinetsAndOrder">
+
+		SELECT
+			  c.*, o.id orderId, o.courier_send_time courierSendTime, o.sender_time senderTime, o.send_total_money sendTotalMoney, co.`type`,
+				  IFNULL(p.money,0) money, IFNULL(p.over_time,0) overTime, IFNULL(p.over_type, '0') overType, IFNULL(p.over_money, 0) overMoney, IFNULL(p.over_unit, 0) overUnit,
+				  IFNULL(p.money1,0) money1, IFNULL(p.over_time1,0) overTime1, IFNULL(p.over_type1, '0') overType1, IFNULL(p.over_money1, 0) overMoney1, IFNULL(p.over_unit1, 0) overUnit1
+		FROM
+			
+			zhinenggui_code co
+			JOIN zhinenggui_order o ON o.code_id = co.id
+			AND co.code = #{validCode}
+			AND ( o.state = '400' OR o.state = '500' )
+			and o.send_device_id = #{deviceId}
+			JOIN zhinenggui_cabinets c ON o.send_door_id = c.id
+			AND c.device_id = #{deviceId}
+			LEFT JOIN zhinenggui_door_price p on c.id = p.door_id;
+	</select>
+
+	<select id="getDoorById" resultType="com.jeesite.modules.zhinenggui.search.CabinetsAndOrder">
+		SELECT
+		  c.*, o.id orderId, o.courier_send_time courierSendTime, o.sender_time senderTime, o.send_total_money sendTotalMoney, co.`type`,
+		  IFNULL(p.money,0) money, IFNULL(p.over_time,0) overTime, IFNULL(p.over_type, '0') overType, IFNULL(p.over_money, 0) overMoney, IFNULL(p.over_unit, 0) overUnit,
+		  IFNULL(p.money1,0) money1, IFNULL(p.over_time1,0) overTime1, IFNULL(p.over_type1, '0') overType1, IFNULL(p.over_money1, 0) overMoney1, IFNULL(p.over_unit1, 0) overUnit1,
+		  o.code_id codeId
+		FROM
+		  zhinenggui_cabinets c
+		  LEFT JOIN
+			(SELECT
+			  *
+			FROM
+			  zhinenggui_order
+		  	) o
+			ON c.id = o.send_door_id
+		  LEFT JOIN
+			(SELECT
+			  *
+			FROM
+			  zhinenggui_code
+			WHERE STATUS = '0') co
+			ON o.`code_id` = co.`id`
+		  LEFT JOIN
+			(SELECT
+			  *
+			FROM
+			  zhinenggui_door_price) p
+			ON c.id = p.door_id
+		WHERE o.id = #{oid}
+			  AND c.status = 0 LIMIT 1
+	</select>
+
+	<select id="getDoorByOrderIdAndPhone" resultType="com.jeesite.modules.zhinenggui.search.CabinetsAndOrder">
+		SELECT
+		  c.*, o.id orderId, o.courier_send_time courierSendTime, o.sender_time senderTime, o.send_total_money sendTotalMoney,
+		  IFNULL(p.money,0) money, IFNULL(p.over_time,0) overTime, IFNULL(p.over_type, '0') overType, IFNULL(p.over_money, 0) overMoney, IFNULL(p.over_unit, 0) overUnit,
+		  IFNULL(p.money1,0) money1, IFNULL(p.over_time1,0) overTime1, IFNULL(p.over_type1, '0') overType1, IFNULL(p.over_money1, 0) overMoney1, IFNULL(p.over_unit1, 0) overUnit1
+		FROM
+		  zhinenggui_cabinets c
+		  LEFT JOIN
+			(SELECT
+			  *
+			FROM
+			  zhinenggui_order
+			WHERE `state` = '400') o
+			ON c.id = o.send_door_id
+		  LEFT JOIN
+			(SELECT
+			  *
+			FROM
+			  zhinenggui_door_price) p
+			ON c.id = p.door_id
+		WHERE o.`getter_phone` = #{sendDeviceId}
+			  AND o.id = #{phone} AND c.status = 0 LIMIT 1
+	</select>
+
+	<select id="getDoorByDeviceIdAndSize" resultType="com.jeesite.modules.zhinenggui.search.CabinetsAndOrder">
+		SELECT c.*, p.money, p.over_time overTime , p.over_type overType , p.over_money overMoney , p.over_unit overUnit
+		FROM zhinenggui_cabinets c
+		LEFT JOIN (SELECT * FROM zhinenggui_door_price WHERE STATUS = '0') p ON c.id = p.door_id
+		WHERE c.device_id = #{deviceId} AND c.door_size = #{doorSize} AND c.state = '1' AND c.status = 0 LIMIT 1
+	</select>
+
+	<select id="getDoorByDeviceId" resultType="com.jeesite.modules.zhinenggui.search.CabinetsAndOrder">
+		SELECT c.*, o.id orderId, o.courier_send_time courierSendTime, o.send_total_money sendTotalMoney,
+		p.money, p.over_time overTime , p.over_type overType , p.over_money overMoney, p.over_unit overUnit
+		FROM zhinenggui_cabinets c
+		LEFT JOIN (SELECT * FROM zhinenggui_order WHERE `state` = '2') o ON c.id = o.send_door_id
+		LEFT JOIN (SELECT * FROM zhinenggui_code WHERE TYPE = '3') co ON o.`code_id` = co.`id`
+		LEFT JOIN (SELECT * FROM zhinenggui_door_price ) p ON c.id = p.door_id
+		WHERE c.device_id = #{deviceId} AND c.status = 0
+	</select>
+
+	<select id="getNotGetOrder" resultType="com.jeesite.modules.zhinenggui.search.OrderDetail" parameterType="java.lang.String">
+		SELECT o.id orderId, o.courier_send_time courierSendTime, d.device_remark deviceRemark, c.plate_id plateId,
+		c.door_id doorId, c.total_door_id totalDoorId, o.getter_phone getterPhone, o.state
+		FROM zhinenggui_order o
+		LEFT JOIN zhinenggui_cabinets c ON c.id = o.send_door_id
+		LEFT JOIN zhinenggui_device d on d.device_id = c.device_id
+		WHERE o.courier_send_id = #{userId} AND o.state = '400' AND o.`status` = '0'
+	</select>
+
+	<select id="getToSendOrderByCourier" resultType="ZngOrder" parameterType="java.lang.String">
+		SELECT o.*,c.door_id , c.plate_id, c.total_door_id FROM zhinenggui_order o LEFT JOIN zhinenggui_cabinets c ON o.`get_door_id` = c.id WHERE o.get_device_id = #{deviceId} AND o.state = '200'
+	</select>
+
+	<select id="getCourierOrder" resultType="com.jeesite.modules.zhinenggui.search.CourierOrderDetail">
+		SELECT o.id id, o.sender_phone senderPhone, o.getter_phone getterPhone, o.update_date updateDate,
+		o.express_number expressNumber, c.total_door_id totalDoorId, c.door_size doorSize, o.state state
+		FROM zhinenggui_order AS o
+		LEFT JOIN zhinenggui_cabinets AS c ON c.id = o.send_door_id
+		WHERE o.state != '600'
+		AND o.send_device_id = #{deviceId}
+		AND o.courier_send_id =#{userId}
+	</select>
+
+	<select id="getNotDeviceOrderList" resultType="com.jeesite.modules.zhinenggui.search.CourierOrderDetail">
+		SELECT o.id id, o.sender_phone senderPhone, o.getter_phone getterPhone, o.update_date updateDate,
+		o.express_number expressNumber, c.total_door_id totalDoorId, c.door_size doorSize, o.state state,
+		u.phone courierPhone
+		FROM zhinenggui_order AS o
+		LEFT JOIN zhinenggui_cabinets AS c ON c.id = o.send_door_id
+		LEFT JOIN zhinenggui_user u ON o.courier_send_id = u.id
+		WHERE o.state != '600'AND (o.send_device_id = #{deviceId} OR o.get_device_id = #{deviceId})
+	</select>
+
+	<select id="getOrderListByPhone" resultType="com.jeesite.modules.zhinenggui.search.OrderSearch">
+		SELECT
+		concat(
+		d.device_remark,
+		c.total_door_id,
+		'柜门'
+		) addr,
+		o.id order_id,
+		o.express_number,
+		o.courier_send_name,
+		u.phone courier_phone,
+		IF(o.user_id is null , o.sender_time ,o.courier_send_time) send_time,
+		c.total_door_id,
+		o.send_total_money,
+		cd.`code`
+		FROM
+		zhinenggui_order o
+		LEFT JOIN zhinenggui_device d ON o.send_device_id = d.device_id
+		LEFT JOIN zhinenggui_cabinets c ON o.send_door_id = c.id
+		LEFT JOIN zhinenggui_user u on o.courier_send_id = u.id
+		LEFT JOIN zhinenggui_code cd on cd.id = o.code_id
+		WHERE o.status = 0 AND o.state = '400' AND o.send_device_id = ${deviceId} AND o.getter_phone = ${phone}
+	</select>
+	
+		<select id="getOverOrderListByPhone" resultType="com.jeesite.modules.zhinenggui.search.OrderSearch">
+		SELECT
+		concat(
+		d.device_remark,
+		c.total_door_id,
+		'柜门'
+		) addr,
+		o.send_device_id device_id,
+		o.sender_time send_time,
+		o.getter_time,
+		o.id order_id,
+		o.express_number,
+		o.courier_send_name,
+		u.phone courier_phone,
+		IF(o.user_id is null , o.sender_time ,o.courier_send_time) send_time,
+		c.total_door_id,
+		o.send_total_money,
+		cd.`code`
+		FROM
+		zhinenggui_order o
+		LEFT JOIN zhinenggui_device d ON o.send_device_id = d.device_id
+		LEFT JOIN zhinenggui_cabinets c ON o.send_door_id = c.id
+		LEFT JOIN zhinenggui_user u on o.courier_send_id = u.id
+		LEFT JOIN zhinenggui_code cd on cd.id = o.code_id
+		WHERE o.status = 0 AND o.state = '600' AND o.getter_phone = ${phone}
+	</select>
+	<select id="getOrderListByPhoneNoState" resultType="com.jeesite.modules.zhinenggui.search.OrderSearch">
+		SELECT
+		concat(
+		d.device_remark,
+		c.total_door_id,
+		'柜门'
+		) addr,
+		o.id order_id,
+		o.send_device_id device_id,
+		o.sender_time send_time,
+		o.express_number,
+		o.courier_send_name,
+		u.phone courier_phone,
+		IF(o.user_id is null , o.sender_time ,o.courier_send_time) send_time,
+		c.total_door_id,
+		o.send_total_money,
+		cd.`code`
+		FROM
+		zhinenggui_order o
+		LEFT JOIN zhinenggui_device d ON o.send_device_id = d.device_id
+		LEFT JOIN zhinenggui_cabinets c ON o.send_door_id = c.id
+		LEFT JOIN zhinenggui_user u on o.courier_send_id = u.id
+		LEFT JOIN zhinenggui_code cd on cd.id = o.code_id
+		WHERE o.status = 0 AND o.getter_phone = #{phone}
+		<if test="deviceId != null and deviceId !='' and deviceId != 'null'">
+			AND o.send_device_id = #{deviceId}
+		</if>
+	</select>
+	
+		<select id="getOrderListByPhoneNoOver" resultType="com.jeesite.modules.zhinenggui.search.OrderSearch">
+		SELECT
+		concat(
+		d.device_remark,
+		c.total_door_id,
+		'柜门'
+		) addr,
+		o.id order_id,
+		o.express_number,
+		o.send_device_id device_id,
+		o.sender_time send_time,
+		o.courier_send_name,
+		u.phone courier_phone,
+		IF(o.user_id is null , o.sender_time ,o.courier_send_time) send_time,
+		c.total_door_id,
+		o.send_total_money,
+		cd.`code`
+		FROM
+		zhinenggui_order o
+		LEFT JOIN zhinenggui_device d ON o.send_device_id = d.device_id
+		LEFT JOIN zhinenggui_cabinets c ON o.send_door_id = c.id
+		LEFT JOIN zhinenggui_user u on o.courier_send_id = u.id
+		LEFT JOIN zhinenggui_code cd on cd.id = o.code_id
+		WHERE o.status = 0  AND o.getter_phone = ${phone} AND o.state = 400
+		<if test="deviceId != null and deviceId != '' and deviceId != 'null'">
+			AND o.send_device_id = ${deviceId}
+		</if>
+	</select>
+
+	<select id="getOrderByDoorIdAndDeviceId" resultType="ZngOrder">
+		SELECT *
+		FROM zhinenggui_order
+		WHERE status = '0' AND
+		state != '600' AND
+		(send_device_id = #{deviceId} OR get_device_id = #{deviceId}) AND
+		(send_door_id = #{doorId} OR get_door_id = #{doorId})
+	</select>
+	
+	<select id="getOverOrderByDoorIdAndDeviceId" resultType="ZngOrder">
+		SELECT *
+		FROM zhinenggui_order
+		WHERE status = '0' AND
+		state = '600' AND
+		(send_device_id = #{deviceId} OR get_device_id = #{deviceId}) AND
+		(send_door_id = #{doorId} OR get_door_id = #{doorId})
+	</select>
+
+	<insert id="saveCopyOrder" parameterType="java.lang.String">
+		INSERT INTO zhinenggui_copy_order SELECT *, CONCAT(CURRENT_DATE(),' ',CURRENT_TIME()) FROM zhinenggui_order WHERE express_number = #{expressNumber}
+	</insert>
+
+</mapper>

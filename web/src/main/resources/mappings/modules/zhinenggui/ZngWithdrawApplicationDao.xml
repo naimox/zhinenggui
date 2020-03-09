@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.zhinenggui.dao.ZngWithdrawApplicationDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="ZngWithdrawApplication">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+	<select id="getWithdrawApplicationByUserId" resultType="ZngWithdrawApplication" parameterType="java.lang.String">
+		SELECT *
+		FROM zhinenggui_withdraw_application
+		WHERE user_id = #{userId} AND (zhinenggui_withdraw_application.type = 1 OR zhinenggui_withdraw_application.type = 4 OR zhinenggui_withdraw_application.type = 5)
+	</select>
+
+	<update id="upApplicationType">
+		UPDATE zhinenggui_withdraw_application  SET type = #{type}
+		WHERE zhinenggui_withdraw_application.user_id = #{userId} AND zhinenggui_withdraw_application.type = 4 AND zhinenggui_withdraw_application.money = #{money}
+	</update>
+
+	<select id="getTop" resultType="ZngWithdrawApplication">
+		SELECT * FROM zhinenggui_withdraw_application WHERE user_id = #{userId}
+		order by create_time desc LIMIT 1
+	</select>
+</mapper>

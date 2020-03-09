@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.zhinenggui.dao.ZngDetailDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="ZngDetail">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+    <!--OR zhinenggui_detail.user_id = #{byUser}  -->
+	<select id="findDetailList" resultType="com.jeesite.modules.zhinenggui.entity.ZngDetail">
+		SELECT
+		zhinenggui_detail.id id, zhinenggui_user.phone user_id, zhinenggui_device.device_name device_id,
+		zhinenggui_detail.type type, zhinenggui_detail.create_time create_time, zhinenggui_detail.money money, zhinenggui_detail.state state
+		FROM zhinenggui_detail
+		LEFT JOIN zhinenggui_device ON zhinenggui_detail.device_id = zhinenggui_device.device_id
+		LEFT JOIN zhinenggui_user ON zhinenggui_user.id = zhinenggui_detail.user_id
+		WHERE (zhinenggui_device.by_user = #{byUser} OR zhinenggui_detail.user_id = #{byUser})
+		<if test="createTimeGte != null and createTimeLte != null">
+			AND zhinenggui_detail.create_time between #{createTimeGte} and #{createTimeLte}
+		</if>
+		<if test="moneyGte != 0 and moneyLte != 0">
+			AND zhinenggui_detail.money between #{moneyGte} and #{moneyLte}
+		</if>
+		<if test="userId != null and userId != ''">
+			AND zhinenggui_user.phone LIKE  '%${userId}%'
+		</if>
+		<if test="driverId != null and driverId != ''">
+			AND zhinenggui_device.device_name  LIKE '%${driverId}%'
+		</if>
+		<if test="detailType != -1 ">
+			AND zhinenggui_detail.type = #{detailType}
+		</if>
+		order by create_time desc
+	</select>
+
+	<!--zhinenggui_device on zhinenggui_detail.device_id = zhinenggui_device.device_id WHERE zhinenggui_device.by_company = 'SD1001'123456-->
+
+</mapper>

@@ -1,0 +1,107 @@
+<% layout('/layouts/default.html', {title: '验证码统计管理', libs: ['validate']}){ %>
+<div class="main-content">
+    <div class="box box-main">
+        <div class="box-header with-border">
+            <div class="box-title">
+                <i class="fa fa-list-alt"></i> ${text(ddwlCodeStatistics.isNewRecord ? '新增验证码统计' : '编辑验证码统计')}
+            </div>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div>
+        </div>
+        <#form:form id="inputForm" model="${ddwlCodeStatistics}" action="${ctx}/ddwl/ddwlCodeStatistics/save" method="post" class="form-horizontal">
+        <div class="box-body">
+            <div class="form-unit">${text('基本信息')}</div>
+            <#form:hidden path="id"/>
+            <div class="row">
+                <!--<div class="row">-->
+                    <!--<div class="col-xs-12">-->
+                        <!--<div class="form-group">-->
+                            <!--<label class="control-label col-sm-2" title="">-->
+                                <!--<span class="required hide">*</span> ${text('用户ID')}：<i class="fa icon-question hide"></i></label>-->
+                            <!--<div class="col-sm-5">-->
+                                <!--<#form:input path="userBy" maxlength="255" class="form-control"/>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<#form:hidden path="remarks"/>-->
+                <!--</div>-->
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" title="">
+                                <span class="required hide">*</span> ${text('验证码数量')}：<i class="fa icon-question hide"></i></label>
+                            <div class="col-sm-5">
+                                <select id="selectCodeNum" class="form-control">
+                                    <option value ="500">500条</option>
+                                    <option value ="1000">1000条</option>
+                                    <option value="3000">3000条</option>
+                                    <option value="5000">5000条</option>
+                                </select>
+                                <!--<#form:input path="codeNum" maxlength="11" class="form-control"/>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="box-footer">
+                <div class="row">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" class="btn btn-sm btn-primary" id="btnRecharge"><i class="fa fa-check"></i> ${text('充 值')}</button>&nbsp;
+                        <button type="button" class="btn btn-sm btn-default" id="btnCancel" onclick="js.closeCurrentTabPage()"><i class="fa fa-reply-all"></i> ${text('关 闭')}</button>
+                    </div>
+                </div>
+            </div>
+        </#form:form>
+    </div>
+</div>
+<% } %>
+<script>
+
+    /**
+     * AJAX 提交
+     * js.ajaxSubmit('/sys/user/save', {param: 1}, function(data){})
+     */
+    $("#btnRecharge").click(function(){
+        js.ajaxSubmit('${ctx}/ddwl/ddwlCodeStatistics/recharge?rechargeNum='+$("#selectCodeNum option:selected").val(), {}, function (data) {
+            if (data['code'] != '200'){
+                alert(data['msg'])
+                return
+            }
+            if (data['imgUrl'] != null && data['imgUrl'] != '') {
+                // window.open(data['imgUrl'])
+                // window.location.href = data['imgUrl'];
+                var img = "<img height='300px' width='300px'  src='"+data['imgUrl']+"'> <div align='center' style='margin: 8px'><button type='button' onclick='js.closeCurrentTabPage()' class='btn btn-sm btn-primary'><i class='fa fa-check'></i> ${text('充值完成')}</button></div>"
+                layer.open({
+                    type: 1,//Page层类型
+                    // area: ['500px', '500px'],
+                    title: '充值'+data['rechargeNum']+'条短信',
+                    shade: 0.6 ,//遮罩透明度
+                    maxmin: true ,//允许全屏最小化
+                    anim: 1 ,//0-6的动画形式，-1不开启
+                    content: img
+                });
+                // alert(data['imgUrl'])
+            }else{
+                alert("充值获取失败")
+            }
+        },'json');
+    });
+
+    $(document).ready(function(){
+        $("#userBy").attr("disabled", "disabled")
+    });
+    $("#inputForm").validate({
+        submitHandler: function(form){
+            js.ajaxSubmitForm($(form), function(data){
+                js.showMessage(data.message);
+                if(data.result == Global.TRUE){
+                    js.closeCurrentTabPage(function(contentWindow){
+                        contentWindow.page();
+                    });
+                }
+            }, "json");
+        }
+    });
+</script>
